@@ -1,0 +1,19 @@
+#! /usr/bin/env tclsh
+
+package require Tcl 8.5
+
+set pid [exec {*}$argv >@ stdout 2>@ stderr &]
+set VmRSS {}
+
+# While the process is running...
+while {![catch { exec kill -0 $pid }]} {
+    if {[catch {
+        set value [exec awk {/VmRSS/ { print $2 }} /proc/$pid/status]
+        lappend VmRSS $value
+    }]} break
+
+    after 1000
+}
+
+puts "max: [::tcl::mathfunc::max {*}$VmRSS]"
+puts "avg: [expr {[::tcl::mathop::+ {*}$VmRSS] / [llength $VmRSS]}]"
