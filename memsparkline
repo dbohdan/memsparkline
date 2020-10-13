@@ -26,6 +26,7 @@ import time
 
 SPARKLINE_LENGTH = 20
 SPARKLINE_TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+USAGE_DIVISOR = 1 << 20
 
 
 def sparkline(min, max, data):
@@ -56,7 +57,7 @@ def track(parent):
         latest = history[-SPARKLINE_LENGTH:]
         line = sparkline(0, maximum, latest)
         print(
-            '\r%s %0.2f' % (line, total / (1 << 20)),
+            '\r%s %0.2f' % (line, total / USAGE_DIVISOR),
             file=sys.stderr,
             end=''
         )
@@ -74,9 +75,9 @@ def main(args):
         return
 
     print('', file=sys.stderr)
-    print('max: %0.2f' % (maximum / (1 << 20)), file=sys.stderr)
+    print('max: %0.2f' % (maximum / USAGE_DIVISOR), file=sys.stderr)
     print(
-        'avg: %0.2f' % (sum(history) / len(history) / (1 << 20)),
+        'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
         file=sys.stderr
     )
 
