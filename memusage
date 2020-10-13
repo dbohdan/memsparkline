@@ -37,7 +37,11 @@ def track(parent):
 
         latest = history[-SPARKLINE_LENGTH:]
         line = sparkline(0, maximum, latest)
-        print(f'\r{line} {total // 1024}', file=sys.stderr, end='')
+        print(
+            '\r%s %0.2f' % (line, total / (1 << 20)),
+            file=sys.stderr,
+            end=''
+        )
 
     return (maximum, history)
 
@@ -52,8 +56,11 @@ def main(args):
         return
 
     print('', file=sys.stderr)
-    print(f'max: {max // 1024}', file=sys.stderr)
-    print(f'avg: {sum(history) // len(history) // 1024}', file=sys.stderr)
+    print('max: %0.2f' % (max / (1 << 20)), file=sys.stderr)
+    print(
+        'avg: %0.2f' % (sum(history) / len(history) / (1 << 20)),
+        file=sys.stderr
+    )
 
 
 if __name__ == '__main__':
