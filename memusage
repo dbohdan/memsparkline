@@ -9,13 +9,9 @@ namespace eval sparklines {
 }
 
 
-proc sparklines::render data {
+proc sparklines::render {min max data} {
     variable ticks
     variable tickMax
-
-    set sorted [lsort -real $data]
-    set min [lindex $sorted 0]
-    set max [lindex $sorted end]
 
     if {$min == $max} {
         # All data points are the same.
@@ -34,7 +30,9 @@ proc sparklines::render data {
 }
 
 
-namespace eval memusage {}
+namespace eval memusage {
+    variable sparklineLength 20
+}
 
 
 proc memusage::running? pid {
@@ -48,41 +46,76 @@ proc memusage::running? pid {
 }
 
 
-proc memusage::track pid {
-    set rss {}
+proc memusage::vmrss pid {
+    try {
+        set ch [open /proc/$pid/status]
+        while {[gets $ch line] >= 0} {
+            if {[regexp ^VmRSS: $line]} {
+                return [lindex $line 1]
+            }
+        }
 
-    while {[running? $pid]} {
-        try {
-            set value [exec awk {/VmRSS/ { print $2 }} /proc/$pid/status]
-            lappend rss $value
-        } on error _ break
+        error [list can't find line with VmRSS for $pid]
+    } finally {
+        close $ch
+    }
+}
+
+
+# A hack.
+proc memusage::descendents pid {
+    set tree [exec pstree -p $pid]
+    return [lmap {_ pid} [regexp -all -inline {[^\}]\((\d+)\)} $tree] {
+        lindex $pid
+    }]
+}
+
+
+proc memusage::track parent {
+    variable sparklineLength
+
+    set history {}
+    set max 0
+
+    while {[running? $parent]} {
+        set pids [descendents $parent]
+
+        set total 0
+        foreach pid $pids {
+            try {
+                set vmrss [vmrss $pid]
+                incr total $vmrss
+            } on error _ {}
+        }
+        lappend history $total
 
         after 1000
 
-        set sparkline [sparklines::render $rss]
-        puts -nonewline \
-            stderr \
-            "\r[string range $sparkline end-20 end] $value"
+        if {$total > $max} { set max $total }
+
+        set latest [lrange $history end-$sparklineLength end]
+        set sparkline [sparklines::render 0 $max $latest]
+        puts -nonewline stderr "\r$sparkline $total"
     }
 
 
-    return $rss
+    return [list $max $history]
 }
 
 
 proc memusage::main argv {
     set pid [exec {*}$argv >@ stdout 2>@ stderr &]
-    set rss [track $pid]
+    lassign [track $pid] max history
 
-    if {[llength $rss] == 0} {
+    if {[llength $history] == 0} {
         puts stderr [list no data collected]
         return
     }
 
     puts stderr {}
-    puts stderr [list max: [::tcl::mathfunc::max {*}$rss]]
+    puts stderr [list max: $max]
     puts stderr [list avg: [expr {
-        [::tcl::mathop::+ {*}$rss] / [llength $rss]
+        [::tcl::mathop::+ {*}$history] / [llength $history]
     }]]
 }
 
