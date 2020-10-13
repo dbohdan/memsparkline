@@ -32,6 +32,10 @@ USAGE_DIVISOR = 1 << 20
 
 def sparkline(min, max, data):
     tick_max = len(SPARKLINE_TICKS) - 1
+
+    if min == max:
+        return SPARKLINE_TICKS[tick_max // 2] * len(data)
+
     return ''.join(
         SPARKLINE_TICKS[int(tick_max * (x - min) / (max - min))]
         for x in data
