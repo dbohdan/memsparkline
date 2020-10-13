@@ -61,7 +61,7 @@ def track(parent):
 
 def main(args):
     p = psutil.Popen(args)
-    max, history = track(p)
+    maximum, history = track(p)
     p.wait()
 
     if len(history) == 0:
@@ -69,7 +69,7 @@ def main(args):
         return
 
     print('', file=sys.stderr)
-    print('max: %0.2f' % (max / (1 << 20)), file=sys.stderr)
+    print('max: %0.2f' % (maximum / (1 << 20)), file=sys.stderr)
     print(
         'avg: %0.2f' % (sum(history) / len(history) / (1 << 20)),
         file=sys.stderr
