@@ -89,16 +89,21 @@ def cli(argv):
     parser.add_argument(
         'command',
         default=[],
-        help='the command to run and its arguments',
+        help='command to run',
+    )
+    parser.add_argument(
+        'arguments',
+        default=[],
+        help='arguments to the command',
         metavar='arg',
-        nargs='+',
+        nargs='*',
     )
     parser.add_argument(
         '-o', '--output',
         default='',
         dest='output',
         help='output file (leave empty for the standard error)',
-        metavar='output',
+        metavar='path',
     )
     parser.add_argument(
         '-n', '--newlines',
@@ -119,7 +124,7 @@ def main(argv):
     if args.output != '':
         output = open(args.output, 'w', 1)
 
-    process = psutil.Popen(args.command)
+    process = psutil.Popen([args.command] + args.arguments)
     maximum, history = track(process, output, args.newlines)
     process.wait()
 
