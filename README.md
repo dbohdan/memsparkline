@@ -1,6 +1,6 @@
 # memsparkline
 
-Display the memory usage (resident set size) of a process and its children in real time.  Print the average and maximum usage after it exits.
+Display the memory usage (resident set size) of a process and its children in real time.  Print the average and the maximal usage after the process exits.
 
 
 ## Examples
