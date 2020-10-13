@@ -1,126 +1,60 @@
-#! /usr/bin/env tclsh
+#! /usr/bin/env python3
 
-package require Tcl 8.6
+import psutil
+import sys
+import time
 
-
-namespace eval sparklines {
-    variable ticks [list ▁ ▂ ▃ ▄ ▅ ▆ ▇ █]
-    variable tickMax [expr {[llength $ticks] - 1}]
-}
-
-
-proc sparklines::render {min max data} {
-    variable ticks
-    variable tickMax
-
-    if {$min == $max} {
-        # All data points are the same.
-        return [string repeat \
-            [lindex $ticks [expr {int($tickMax / 2)}]] \
-            [llength $data] \
-        ]
-    } else {
-        return [join [lmap x $data {
-            set normalized [expr {
-                int($tickMax * ($x - $min) / ($max - $min))
-            }]
-            lindex $ticks $normalized
-        }] {}]
-    }
-}
+SPARKLINE_LENGTH = 20
+TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+TICK_MAX = len(TICKS) - 1
 
 
-namespace eval memusage {
-    variable sparklineLength 20
-}
+def sparkline(min, max, data):
+    if min == max:
+        return TICKS[TICK_MAX // 2] * len(data)
+    else:
+        return ''.join(
+            [TICKS[int(TICK_MAX * (x - min) / (max - min))] for x in data]
+        )
 
 
-proc memusage::running? pid {
-    try {
-        exec kill -0 $pid
-    } on error _ {
-        return 0
-    }
+def track(parent):
+    history = []
+    maximum = 0
 
-    return 1
-}
+    while parent.is_running() and parent.status() != psutil.STATUS_ZOMBIE:
+        tree = parent.children(recursive=True)
+        tree.append(parent)
 
+        rsss = [x.memory_info().rss for x in tree]
+        total = sum(rsss)
 
-proc memusage::vmrss pid {
-    try {
-        set ch [open /proc/$pid/status]
-        while {[gets $ch line] >= 0} {
-            if {[regexp ^VmRSS: $line]} {
-                return [lindex $line 1]
-            }
-        }
+        history.append(total)
 
-        error [list can't find line with VmRSS for $pid]
-    } finally {
-        close $ch
-    }
-}
+        time.sleep(1)
+
+        maximum = max(maximum, total)
+
+        latest = history[-SPARKLINE_LENGTH:]
+        line = sparkline(0, maximum, latest)
+        print(f'\r{line} {total // 1024}', file=sys.stderr, end='')
+
+    return (maximum, history)
 
 
-# A hack.
-proc memusage::descendents pid {
-    set tree [exec pstree -p $pid]
-    return [lmap {_ pid} [regexp -all -inline {[^\}]\((\d+)\)} $tree] {
-        lindex $pid
-    }]
-}
+def main(args):
+    p = psutil.Popen(args)
+    max, history = track(p)
+    p.wait()
 
-
-proc memusage::track parent {
-    variable sparklineLength
-
-    set history {}
-    set max 0
-
-    while {[running? $parent]} {
-        set pids [descendents $parent]
-
-        set total 0
-        foreach pid $pids {
-            try {
-                set vmrss [vmrss $pid]
-                incr total $vmrss
-            } on error _ {}
-        }
-        lappend history $total
-
-        after 1000
-
-        if {$total > $max} { set max $total }
-
-        set latest [lrange $history end-$sparklineLength end]
-        set sparkline [sparklines::render 0 $max $latest]
-        puts -nonewline stderr "\r$sparkline $total"
-    }
-
-
-    return [list $max $history]
-}
-
-
-proc memusage::main argv {
-    set pid [exec {*}$argv >@ stdout 2>@ stderr &]
-    lassign [track $pid] max history
-
-    if {[llength $history] == 0} {
-        puts stderr [list no data collected]
+    if len(history) == 0:
+        print('no data collection', file=sys.stderr)
         return
-    }
 
-    puts stderr {}
-    puts stderr [list max: $max]
-    puts stderr [list avg: [expr {
-        [::tcl::mathop::+ {*}$history] / [llength $history]
-    }]]
-}
+    print('', file=sys.stderr)
+    print(f'max: {max // 1024}', file=sys.stderr)
+    print(f'avg: {sum(history) // len(history) // 1024}', file=sys.stderr)
 
 
-# If this is the main script...
-if {[info exists argv0] && ([file tail [info script]] eq [file tail $argv0])} {
-    memusage::main $argv
-}
+if __name__ == '__main__':
+    main(sys.argv[1:])
