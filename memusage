@@ -1,19 +1,93 @@
 #! /usr/bin/env tclsh
 
-package require Tcl 8.5
+package require Tcl 8.6
 
-set pid [exec {*}$argv >@ stdout 2>@ stderr &]
-set VmRSS {}
 
-# While the process is running...
-while {![catch { exec kill -0 $pid }]} {
-    if {[catch {
-        set value [exec awk {/VmRSS/ { print $2 }} /proc/$pid/status]
-        lappend VmRSS $value
-    }]} break
-
-    after 1000
+namespace eval sparklines {
+    variable ticks [list ▁ ▂ ▃ ▄ ▅ ▆ ▇ █]
+    variable tickMax [expr {[llength $ticks] - 1}]
 }
 
-puts "max: [::tcl::mathfunc::max {*}$VmRSS]"
-puts "avg: [expr {[::tcl::mathop::+ {*}$VmRSS] / [llength $VmRSS]}]"
+
+proc sparklines::render data {
+    variable ticks
+    variable tickMax
+
+    set sorted [lsort -real $data]
+    set min [lindex $sorted 0]
+    set max [lindex $sorted end]
+
+    if {$min == $max} {
+        # All data points are the same.
+        return [string repeat \
+            [lindex $ticks [expr {int($tickMax / 2)}]] \
+            [llength $data] \
+        ]
+    } else {
+        return [join [lmap x $data {
+            set normalized [expr {
+                int($tickMax * ($x - $min) / ($max - $min))
+            }]
+            lindex $ticks $normalized
+        }] {}]
+    }
+}
+
+
+namespace eval memusage {}
+
+
+proc memusage::running? pid {
+    try {
+        exec kill -0 $pid
+    } on error _ {
+        return 0
+    }
+
+    return 1
+}
+
+
+proc memusage::track pid {
+    set rss {}
+
+    while {[running? $pid]} {
+        try {
+            set value [exec awk {/VmRSS/ { print $2 }} /proc/$pid/status]
+            lappend rss $value
+        } on error _ break
+
+        after 1000
+
+        set sparkline [sparklines::render $rss]
+        puts -nonewline \
+            stderr \
+            "\r[string range $sparkline end-20 end] $value"
+    }
+
+
+    return $rss
+}
+
+
+proc memusage::main argv {
+    set pid [exec {*}$argv >@ stdout 2>@ stderr &]
+    set rss [track $pid]
+
+    if {[llength $rss] == 0} {
+        puts stderr [list no data collected]
+        return
+    }
+
+    puts stderr {}
+    puts stderr [list max: [::tcl::mathfunc::max {*}$rss]]
+    puts stderr [list avg: [expr {
+        [::tcl::mathop::+ {*}$rss] / [llength $rss]
+    }]]
+}
+
+
+# If this is the main script...
+if {[info exists argv0] && ([file tail [info script]] eq [file tail $argv0])} {
+    memusage::main $argv
+}
