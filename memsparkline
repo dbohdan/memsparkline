@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import argparse
 import os.path
 import psutil
 import sys
@@ -42,7 +43,7 @@ def sparkline(min, max, data):
     )
 
 
-def track(parent):
+def track(parent, output, newlines):
     history = []
     maximum = 0
 
@@ -61,10 +62,11 @@ def track(parent):
 
         latest = history[-SPARKLINE_LENGTH:]
         line = sparkline(0, maximum, latest)
+        fmt = '%s %0.2f\n' if newlines else '\r%s %0.2f'
         print(
-            '\r%s %0.2f' % (line, total / USAGE_DIVISOR),
+            fmt % (line, total / USAGE_DIVISOR),
             end='',
-            file=sys.stderr,
+            file=output,
         )
 
     return (maximum, history)
@@ -77,25 +79,61 @@ def usage(argv0):
     )
 
 
-def main(argv):
-    if len(argv) == 1:
-        usage(argv[0])
-        exit(0)
+def cli(argv):
+    parser = argparse.ArgumentParser(
+        description='Display memory usage in real time'
+    )
+    parser.add_argument(
+        'command',
+        default=[],
+        help='the command to run and its arguments',
+        metavar='arg',
+        nargs='+',
+    )
+    parser.add_argument(
+        '-o', '--output',
+        default='',
+        dest='output',
+        help='output file (leave empty for the standard error)',
+        metavar='output',
+    )
+    parser.add_argument(
+        '-n', '--newlines',
+        action='store_true',
+        default=False,
+        help='print the sparkline on a new line every time',
+    )
 
-    p = psutil.Popen(argv[1:])
-    maximum, history = track(p)
+    args = parser.parse_args(argv[1:])
+
+    return args
+
+
+def main(argv):
+    args = cli(argv)
+
+    output = sys.stderr
+    if args.output != '':
+        output = open(args.output, 'w', 1)
+
+    p = psutil.Popen(args.command)
+    maximum, history = track(p, output, args.newlines)
     p.wait()
 
     if history == []:
-        print('no data collected', file=sys.stderr)
+        print('no data collected', file=output)
         return
 
-    print('', file=sys.stderr)
-    print('max: %0.2f' % (maximum / USAGE_DIVISOR), file=sys.stderr)
+    if not args.newlines:
+        print('', file=output)
+
+    print('max: %0.2f' % (maximum / USAGE_DIVISOR), file=output)
     print(
         'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
-        file=sys.stderr,
+        file=output,
     )
+
+    output.close()
 
 
 if __name__ == '__main__':
