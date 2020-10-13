@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import os.path
 import psutil
 import sys
 import time
@@ -58,19 +59,30 @@ def track(parent):
         line = sparkline(0, maximum, latest)
         print(
             '\r%s %0.2f' % (line, total / USAGE_DIVISOR),
+            end='',
             file=sys.stderr,
-            end=''
         )
 
     return (maximum, history)
 
 
-def main(args):
-    p = psutil.Popen(args)
+def usage(argv0):
+    print(
+        'usage: %s command [arg... ]' % os.path.basename(argv0),
+        file=sys.stderr,
+    )
+
+
+def main(argv):
+    if len(argv) == 1:
+        usage(argv[0])
+        exit(0)
+
+    p = psutil.Popen(argv[1:])
     maximum, history = track(p)
     p.wait()
 
-    if len(history) == 0:
+    if history == []:
         print('no data collected', file=sys.stderr)
         return
 
@@ -78,9 +90,9 @@ def main(args):
     print('max: %0.2f' % (maximum / USAGE_DIVISOR), file=sys.stderr)
     print(
         'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
-        file=sys.stderr
+        file=sys.stderr,
     )
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main(sys.argv)
