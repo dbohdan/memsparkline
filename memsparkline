@@ -98,11 +98,12 @@ def cli(argv):
         nargs='*',
     )
     parser.add_argument(
-        '-o', '--output',
-        default='',
-        dest='output',
-        help='output file (leave empty for the standard error)',
-        metavar='path',
+        '-l', '--length',
+        default=20,
+        dest='length',
+        help='sparkline length',
+        metavar='n',
+        type=int,
     )
     parser.add_argument(
         '-n', '--newlines',
@@ -111,12 +112,11 @@ def cli(argv):
         help='print the sparkline on a new line every time',
     )
     parser.add_argument(
-        '-l', '--length',
-        default=20,
-        dest='length',
-        help='sparkline length',
-        metavar='n',
-        type=int,
+        '-o', '--output',
+        default='',
+        dest='output',
+        help='output file (leave empty for the standard error)',
+        metavar='path',
     )
  
     args = parser.parse_args(argv[1:])
