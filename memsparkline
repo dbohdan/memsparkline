@@ -22,23 +22,26 @@
 
 import argparse
 import os.path
-import psutil
 import sys
 import time
+
+import psutil
 
 SPARKLINE_LENGTH = 20
 SPARKLINE_TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 USAGE_DIVISOR = 1 << 20
 
 
-def sparkline(min, max, data):
+def sparkline(minimum, maximum, data):
     tick_max = len(SPARKLINE_TICKS) - 1
 
-    if min == max:
+    if minimum == maximum:
         return SPARKLINE_TICKS[tick_max // 2] * len(data)
 
     return ''.join(
-        SPARKLINE_TICKS[int(tick_max * (x - min) / (max - min))]
+        SPARKLINE_TICKS[
+            int(tick_max * (x - minimum) / (maximum - minimum))
+        ]
         for x in data
     )
 
@@ -116,9 +119,9 @@ def main(argv):
     if args.output != '':
         output = open(args.output, 'w', 1)
 
-    p = psutil.Popen(args.command)
-    maximum, history = track(p, output, args.newlines)
-    p.wait()
+    process = psutil.Popen(args.command)
+    maximum, history = track(process, output, args.newlines)
+    process.wait()
 
     if history == []:
         print('no data collected', file=output)
