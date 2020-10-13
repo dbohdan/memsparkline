@@ -1,6 +1,6 @@
 # memsparkline
 
-Display the memory usage (resident set size) of a process and its children in real time.
+Display the memory usage (resident set size) of a process and its children in real time.  Print the average and maximum usage after it exits.
 
 ## Example
 
@@ -12,6 +12,8 @@ avg: 371.04
 ```
 
 ## Dependencies
+
+Python 3.5 or later, [psutil](https://github.com/giampaolo/psutil).
 
 ### Debian/Ubuntu
 
