@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+
 # Copyright (c) 2020 D. Bohdan and contributors listed in AUTHORS
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,13 +25,13 @@ import sys
 import time
 
 SPARKLINE_LENGTH = 20
-TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
-TICK_MAX = len(TICKS) - 1
+SPARKLINE_TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 
 
 def sparkline(min, max, data):
+    tick_max = len(SPARKLINE_TICKS) - 1
     return ''.join(
-        TICKS[int(TICK_MAX * (x - min) / (max - min))]
+        SPARKLINE_TICKS[int(tick_max * (x - min) / (max - min))]
         for x in data
     )
 
