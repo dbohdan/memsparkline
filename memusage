@@ -65,7 +65,7 @@ def main(args):
     p.wait()
 
     if len(history) == 0:
-        print('no data collection', file=sys.stderr)
+        print('no data collected', file=sys.stderr)
         return
 
     print('', file=sys.stderr)
