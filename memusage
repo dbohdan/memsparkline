@@ -23,12 +23,10 @@ TICK_MAX = len(TICKS) - 1
 
 
 def sparkline(min, max, data):
-    if min == max:
-        return TICKS[TICK_MAX // 2] * len(data)
-    else:
-        return ''.join(
-            [TICKS[int(TICK_MAX * (x - min) / (max - min))] for x in data]
-        )
+    return ''.join(
+        TICKS[int(TICK_MAX * (x - min) / (max - min))]
+        for x in data
+    )
 
 
 def track(parent):
