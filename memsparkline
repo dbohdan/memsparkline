@@ -27,7 +27,6 @@ import time
 
 import psutil
 
-SPARKLINE_LENGTH = 20
 SPARKLINE_TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 USAGE_DIVISOR = 1 << 20
 
@@ -46,7 +45,7 @@ def sparkline(minimum, maximum, data):
     )
 
 
-def track(parent, output, newlines):
+def track(parent, output, newlines=False, sparkline_length=20):
     history = []
     maximum = 0
 
@@ -63,7 +62,7 @@ def track(parent, output, newlines):
 
         maximum = max(maximum, total)
 
-        latest = history[-SPARKLINE_LENGTH:]
+        latest = history[-sparkline_length:]
         line = sparkline(0, maximum, latest)
         fmt = '%s %0.2f\n' if newlines else '\r%s %0.2f'
         print(
@@ -111,7 +110,15 @@ def cli(argv):
         default=False,
         help='print the sparkline on a new line every time',
     )
-
+    parser.add_argument(
+        '-l', '--length',
+        default=20,
+        dest='length',
+        help='sparkline length',
+        metavar='n',
+        type=int,
+    )
+ 
     args = parser.parse_args(argv[1:])
 
     return args
@@ -125,7 +132,12 @@ def main(argv):
         output = open(args.output, 'w', 1)
 
     process = psutil.Popen([args.command] + args.arguments)
-    maximum, history = track(process, output, args.newlines)
+    maximum, history = track(
+        process,
+        output,
+        newlines=args.newlines,
+        sparkline_length=args.length,
+    )
     process.wait()
 
     if history == []:
@@ -135,7 +147,10 @@ def main(argv):
     if not args.newlines:
         print('', file=output)
 
-    print('max: %0.2f' % (maximum / USAGE_DIVISOR), file=output)
+    print(
+        'max: %0.2f' % (maximum / USAGE_DIVISOR),
+        file=output,
+    )
     print(
         'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
         file=output,
