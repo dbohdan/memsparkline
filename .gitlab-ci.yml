@@ -1,0 +1,8 @@
+image: alpine:3.12
+
+before_script:
+  - apk add python3 py3-psutil
+
+test:
+  script:
+    - sh ci/test.sh
