@@ -118,7 +118,7 @@ def cli(argv):
         help='output file (leave empty for the standard error)',
         metavar='path',
     )
- 
+
     args = parser.parse_args(argv[1:])
 
     return args
@@ -148,11 +148,11 @@ def main(argv):
         print('', file=output)
 
     print(
-        'max: %0.2f' % (maximum / USAGE_DIVISOR),
+        'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
         file=output,
     )
     print(
-        'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
+        'max: %0.2f' % (maximum / USAGE_DIVISOR),
         file=output,
     )
 
