@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import argparse
+import contextlib
 import os.path
 import sys
 import time
@@ -34,36 +35,31 @@ USAGE_DIVISOR = 1 << 20
 def main(argv):
     args = cli(argv)
 
-    output = sys.stderr
-    if args.output != '':
-        output = open(args.output, 'w', 1)
+    with open_output(args.output_path) as output:
+        process = psutil.Popen([args.command] + args.arguments)
+        maximum, history = track(
+            process,
+            output,
+            newlines=args.newlines,
+            sparkline_length=args.length,
+        )
+        process.wait()
 
-    process = psutil.Popen([args.command] + args.arguments)
-    maximum, history = track(
-        process,
-        output,
-        newlines=args.newlines,
-        sparkline_length=args.length,
-    )
-    process.wait()
+        if history == []:
+            print('no data collected', file=output)
+            return
 
-    if history == []:
-        print('no data collected', file=output)
-        return
+        if not args.newlines:
+            print('', file=output)
 
-    if not args.newlines:
-        print('', file=output)
-
-    print(
-        'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
-        file=output,
-    )
-    print(
-        'max: %0.2f' % (maximum / USAGE_DIVISOR),
-        file=output,
-    )
-
-    output.close()
+        print(
+            'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
+            file=output,
+        )
+        print(
+            'max: %0.2f' % (maximum / USAGE_DIVISOR),
+            file=output,
+        )
 
 
 def cli(argv):
@@ -99,7 +95,7 @@ def cli(argv):
     parser.add_argument(
         '-o', '--output',
         default='',
-        dest='output',
+        dest='output_path',
         help='output file (leave empty for the standard error)',
         metavar='path',
     )
@@ -107,6 +103,19 @@ def cli(argv):
     args = parser.parse_args(argv[1:])
 
     return args
+
+
+@contextlib.contextmanager
+def open_output(path):
+    handle = sys.stderr
+    if path != '':
+        handle = open(path, 'w', 1)
+
+    try:
+        yield handle
+    finally:
+        if handle is not sys.stderr:
+            handle.close()
 
 
 def track(parent, output, newlines=False, sparkline_length=20):
