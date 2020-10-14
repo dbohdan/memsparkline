@@ -125,14 +125,9 @@ def track(parent, output, newlines=False, sparkline_length=20):
         tree = parent.children(recursive=True)
         tree.append(parent)
 
-        rsss = [x.memory_info().rss for x in tree]
-        total = sum(rsss)
-
-        history.append(total)
-
-        time.sleep(1)
-
+        total = sum(x.memory_info().rss for x in tree)
         maximum = max(maximum, total)
+        history.append(total)
 
         latest = history[-sparkline_length:]
         line = sparkline(0, maximum, latest)
@@ -142,6 +137,8 @@ def track(parent, output, newlines=False, sparkline_length=20):
             end='',
             file=output,
         )
+
+        time.sleep(1)
 
     return (maximum, history)
 
