@@ -22,7 +22,6 @@
 
 import argparse
 import contextlib
-import os.path
 import sys
 import time
 
