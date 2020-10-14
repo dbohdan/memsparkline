@@ -1,6 +1,6 @@
 # memsparkline
 
-Track the memory usage (resident set size) of a process and its children in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline).  See the average and the maximum usage after the process exits.
+Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline).  See the average and the maximum usage after the process exits.
 
 
 ## Examples
