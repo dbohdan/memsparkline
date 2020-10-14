@@ -41,6 +41,7 @@ def main(argv):
             output,
             newlines=args.newlines,
             sparkline_length=args.length,
+            wait=args.wait,
         )
         process.wait()
 
@@ -64,7 +65,7 @@ def main(argv):
 def cli(argv):
     parser = argparse.ArgumentParser(
         description='Track the RAM usage (resident set size) of a process and '
-        'its descendants in real time.'
+        'its descendants in real time.',
     )
     parser.add_argument(
         'command',
@@ -82,7 +83,7 @@ def cli(argv):
         '-l', '--length',
         default=60,
         dest='length',
-        help='sparkline length',
+        help='sparkline length (default: %(default)d)',
         metavar='n',
         type=int,
     )
@@ -98,6 +99,14 @@ def cli(argv):
         dest='output_path',
         help='output file (leave empty for the standard error)',
         metavar='path',
+    )
+    parser.add_argument(
+        '-w', '--wait',
+        default=1000,
+        dest='wait',
+        help='how long to wait between taking samples (default: %(default)d)',
+        metavar='ms',
+        type=int,
     )
 
     args = parser.parse_args(argv[1:])
@@ -118,7 +127,7 @@ def open_output(path):
             handle.close()
 
 
-def track(parent, output, newlines=False, sparkline_length=20):
+def track(parent, output, newlines=False, sparkline_length=20, wait=1000):
     history = []
     maximum = 0
 
@@ -139,7 +148,7 @@ def track(parent, output, newlines=False, sparkline_length=20):
             file=output,
         )
 
-        time.sleep(1)
+        time.sleep(wait / 1000)
 
     return (maximum, history)
 
