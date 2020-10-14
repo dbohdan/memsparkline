@@ -22,20 +22,20 @@
 
 import os
 import os.path
+import shlex
 import subprocess
 import unittest
 
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
-COMMAND = os.environ.get(
-    'MEMSPARKLINE_COMMAND',
-    os.path.join(TEST_PATH, '..', 'memsparkline')
-)
+COMMAND = shlex.split(os.environ.get('MEMSPARKLINE_COMMAND', ''))
+if COMMAND == []:
+    COMMAND = [os.path.join(TEST_PATH, '..', 'memsparkline')]
 
 
 def run(*args, check=True, stdin=None):
     return subprocess.run(
-        [COMMAND, *args],
+        COMMAND + list(args),
         check=check,
         stdin=stdin,
         stderr=subprocess.PIPE,
