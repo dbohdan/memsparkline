@@ -79,7 +79,7 @@ def cli(argv):
     )
     parser.add_argument(
         '-l', '--length',
-        default=20,
+        default=60,
         dest='length',
         help='sparkline length',
         metavar='n',
