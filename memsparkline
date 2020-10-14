@@ -63,7 +63,8 @@ def main(argv):
 
 def cli(argv):
     parser = argparse.ArgumentParser(
-        description='Display memory usage in real time'
+        description='Track the RAM usage (resident set size) of a process and '
+        'its descendants in real time.'
     )
     parser.add_argument(
         'command',
