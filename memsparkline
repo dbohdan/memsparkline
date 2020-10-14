@@ -160,9 +160,9 @@ def sparkline(minimum, maximum, data):
         return SPARKLINE_TICKS[tick_max // 2] * len(data)
 
     return ''.join(
-        SPARKLINE_TICKS[
-            int(tick_max * (x - minimum) / (maximum - minimum))
-        ]
+        SPARKLINE_TICKS[int(
+            tick_max * (x - minimum) / (maximum - minimum)
+        )]
         for x in data
     )
 
