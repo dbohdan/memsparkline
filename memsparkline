@@ -31,54 +31,39 @@ SPARKLINE_TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
 USAGE_DIVISOR = 1 << 20
 
 
-def sparkline(minimum, maximum, data):
-    tick_max = len(SPARKLINE_TICKS) - 1
+def main(argv):
+    args = cli(argv)
 
-    if minimum == maximum:
-        return SPARKLINE_TICKS[tick_max // 2] * len(data)
+    output = sys.stderr
+    if args.output != '':
+        output = open(args.output, 'w', 1)
 
-    return ''.join(
-        SPARKLINE_TICKS[
-            int(tick_max * (x - minimum) / (maximum - minimum))
-        ]
-        for x in data
+    process = psutil.Popen([args.command] + args.arguments)
+    maximum, history = track(
+        process,
+        output,
+        newlines=args.newlines,
+        sparkline_length=args.length,
     )
+    process.wait()
 
+    if history == []:
+        print('no data collected', file=output)
+        return
 
-def track(parent, output, newlines=False, sparkline_length=20):
-    history = []
-    maximum = 0
+    if not args.newlines:
+        print('', file=output)
 
-    while parent.is_running() and parent.status() != psutil.STATUS_ZOMBIE:
-        tree = parent.children(recursive=True)
-        tree.append(parent)
-
-        rsss = [x.memory_info().rss for x in tree]
-        total = sum(rsss)
-
-        history.append(total)
-
-        time.sleep(1)
-
-        maximum = max(maximum, total)
-
-        latest = history[-sparkline_length:]
-        line = sparkline(0, maximum, latest)
-        fmt = '%s %0.2f\n' if newlines else '\r%s %0.2f'
-        print(
-            fmt % (line, total / USAGE_DIVISOR),
-            end='',
-            file=output,
-        )
-
-    return (maximum, history)
-
-
-def usage(argv0):
     print(
-        'usage: %s command [arg... ]' % os.path.basename(argv0),
-        file=sys.stderr,
+        'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
+        file=output,
     )
+    print(
+        'max: %0.2f' % (maximum / USAGE_DIVISOR),
+        file=output,
+    )
+
+    output.close()
 
 
 def cli(argv):
@@ -124,39 +109,47 @@ def cli(argv):
     return args
 
 
-def main(argv):
-    args = cli(argv)
+def track(parent, output, newlines=False, sparkline_length=20):
+    history = []
+    maximum = 0
 
-    output = sys.stderr
-    if args.output != '':
-        output = open(args.output, 'w', 1)
+    while parent.is_running() and parent.status() != psutil.STATUS_ZOMBIE:
+        tree = parent.children(recursive=True)
+        tree.append(parent)
 
-    process = psutil.Popen([args.command] + args.arguments)
-    maximum, history = track(
-        process,
-        output,
-        newlines=args.newlines,
-        sparkline_length=args.length,
+        rsss = [x.memory_info().rss for x in tree]
+        total = sum(rsss)
+
+        history.append(total)
+
+        time.sleep(1)
+
+        maximum = max(maximum, total)
+
+        latest = history[-sparkline_length:]
+        line = sparkline(0, maximum, latest)
+        fmt = '%s %0.2f\n' if newlines else '\r%s %0.2f'
+        print(
+            fmt % (line, total / USAGE_DIVISOR),
+            end='',
+            file=output,
+        )
+
+    return (maximum, history)
+
+
+def sparkline(minimum, maximum, data):
+    tick_max = len(SPARKLINE_TICKS) - 1
+
+    if minimum == maximum:
+        return SPARKLINE_TICKS[tick_max // 2] * len(data)
+
+    return ''.join(
+        SPARKLINE_TICKS[
+            int(tick_max * (x - minimum) / (maximum - minimum))
+        ]
+        for x in data
     )
-    process.wait()
-
-    if history == []:
-        print('no data collected', file=output)
-        return
-
-    if not args.newlines:
-        print('', file=output)
-
-    print(
-        'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
-        file=output,
-    )
-    print(
-        'max: %0.2f' % (maximum / USAGE_DIVISOR),
-        file=output,
-    )
-
-    output.close()
 
 
 if __name__ == '__main__':
