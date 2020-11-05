@@ -132,23 +132,26 @@ def track(parent, output, newlines=False, sparkline_length=20, wait=1000):
     history = []
     maximum = 0
 
-    while parent.is_running() and parent.status() != psutil.STATUS_ZOMBIE:
-        tree = parent.children(recursive=True)
-        tree.append(parent)
+    try:
+        while parent.is_running() and parent.status() != psutil.STATUS_ZOMBIE:
+            tree = parent.children(recursive=True)
+            tree.append(parent)
 
-        total = sum(x.memory_info().rss for x in tree)
-        maximum = max(maximum, total)
-        history.append(total)
+            total = sum(x.memory_info().rss for x in tree)
+            maximum = max(maximum, total)
+            history.append(total)
 
-        latest = history[-sparkline_length:]
-        line = sparkline(0, maximum, latest)
-        print(
-            fmt % (line, total / USAGE_DIVISOR),
-            end='',
-            file=output,
-        )
+            latest = history[-sparkline_length:]
+            line = sparkline(0, maximum, latest)
+            print(
+                fmt % (line, total / USAGE_DIVISOR),
+                end='',
+                file=output,
+            )
 
-        time.sleep(wait / 1000)
+            time.sleep(wait / 1000)
+    except KeyboardInterrupt:
+        pass
 
     return (maximum, history)
 
