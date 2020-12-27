@@ -40,26 +40,26 @@ def run(*args, check=True, stdin=None):
         stdin=stdin,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
-    )
+    ).stderr.decode('utf-8')
 
 
 class TestMemsparkline(unittest.TestCase):
 
     def test_usage(self):
         self.assertRegex(
-            run(check=False).stderr.decode('ascii'),
+            run(check=False),
             r'^usage',
         )
 
     def test_basic(self):
         self.assertRegex(
-            run('sleep', '1').stderr.decode('utf-8'),
+            run('sleep', '1'),
             r'(?s).*avg:.*max:',
         )
 
     def test_length(self):
         stderr = run('-l', '10', '-w', '10', 'sleep', '1') \
-            .stderr.decode('utf-8')
+
 
         self.assertRegex(
             stderr,
@@ -67,12 +67,12 @@ class TestMemsparkline(unittest.TestCase):
         )
 
     def test_wait_1(self):
-        stderr = run('-w', '2000', 'sleep', '1').stderr.decode('utf-8')
+        stderr = run('-w', '2000', 'sleep', '1')
 
         self.assertEqual(len(stderr.split('\n')), 4)
 
     def test_wait_2(self):
-        stderr = run('-n', '-w', '100', 'sleep', '1').stderr.decode('utf-8')
+        stderr = run('-n', '-w', '100', 'sleep', '1')
 
         self.assertIn(len(stderr.split('\n')), range(10, 15))
 
