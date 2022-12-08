@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2020 D. Bohdan
+# Copyright (c) 2020, 2022 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,13 +63,13 @@ class TestMemsparkline(unittest.TestCase):
 
         self.assertRegex(
             stderr,
-            r'(?m)\r[^ ]{10} \d+\.\d{2}\navg',
+            r'(?m)\r[^ ]{10} \d+\.\d{2}\n avg',
         )
 
     def test_wait_1(self):
         stderr = run('-w', '2000', 'sleep', '1')
 
-        self.assertEqual(len(stderr.split('\n')), 4)
+        self.assertEqual(len(stderr.split('\n')), 5)
 
     def test_wait_2(self):
         stderr = run('-n', '-w', '100', 'sleep', '1')

@@ -1,6 +1,6 @@
 # memsparkline
 
-Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline).  See the average and the maximum usage after the process exits.
+Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline).  See the average and the maximum usage after the process exits, as well as the runtime.
 
 
 ## Examples
@@ -8,8 +8,9 @@ Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_
 ```none
 > ./memsparkline -- chromium-browser --incognito http://localhost:8081/
 ▁▁▁▁▄▇▇▇█ 789.53
-avg: 371.04
-max: 789.53
+ avg: 371.04
+ max: 789.53
+time: 0:00:12.345
 ```
 
 ```none

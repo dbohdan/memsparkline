@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2020 D. Bohdan
+# Copyright (c) 2020, 2022 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 
 import argparse
 import contextlib
+import datetime
 import sys
 import time
 
@@ -35,6 +36,7 @@ def main(argv):
     args = cli(argv)
 
     with open_output(args.output_path) as output:
+        start_dt = datetime.datetime.now()
         process = psutil.Popen([args.command] + args.arguments)
         maximum, history = track(
             process,
@@ -53,11 +55,20 @@ def main(argv):
             print('', file=output)
 
         print(
-            'avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
+            ' avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
             file=output,
         )
         print(
-            'max: %0.2f' % (maximum / USAGE_DIVISOR),
+            ' max: %0.2f' % (maximum / USAGE_DIVISOR),
+            file=output,
+        )
+
+        delta = datetime.datetime.now() - start_dt
+        hms, frac = str(delta).split('.')
+        # For proper rounding, don't just slice frac.
+        millis = '%.03f' % float('0.' + frac)
+        print(
+            'time: %s.%s' % (hms, millis[2:]),
             file=output,
         )
 
