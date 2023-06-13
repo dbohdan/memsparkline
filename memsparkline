@@ -97,7 +97,7 @@ def cli(argv):
         "--dump",
         default="",
         dest="dump_path",
-        help="file to write memory usage history to when done",
+        help="file to write the full resident set size history to when done",
         metavar="path",
     )
     parser.add_argument(
