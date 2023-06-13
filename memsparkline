@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2020, 2022 D. Bohdan
+# Copyright (c) 2020, 2022-2023 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -49,28 +49,41 @@ def main(argv):
 
         if history == []:
             print('no data collected', file=output)
-            return
+        else:
+            if not args.newlines:
+                print('', file=output)
+            summary = summarize(
+                history,
+                maximum,
+                start_dt,
+                datetime.datetime.now()
+            )
+            print('\n'.join(summary), file=output)
 
-        if not args.newlines:
-            print('', file=output)
+    if args.dump_path != '':
+        with open(args.dump_path, 'w') as hist_file:
+            for value in history:
+                print(value, file=hist_file)
 
-        print(
-            ' avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR),
-            file=output,
-        )
-        print(
-            ' max: %0.2f' % (maximum / USAGE_DIVISOR),
-            file=output,
-        )
 
-        delta = datetime.datetime.now() - start_dt
-        hms, frac = str(delta).split('.')
-        # For proper rounding, don't just slice frac.
-        millis = '%.03f' % float('0.' + frac)
-        print(
-            'time: %s.%s' % (hms, millis[2:]),
-            file=output,
-        )
+def summarize(history, maximum, start_dt, end_dt):
+    summary = []
+    summary.append(
+        ' avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR)
+    )
+    summary.append(
+        ' max: %0.2f' % (maximum / USAGE_DIVISOR)
+    )
+
+    delta = end_dt - start_dt
+    hms, frac = str(delta).split('.')
+    # For proper rounding, don't just slice frac.
+    millis = '%.03f' % float('0.' + frac)
+    summary.append(
+        'time: %s.%s' % (hms, millis[2:])
+    )
+
+    return summary
 
 
 def cli(argv):
@@ -91,6 +104,13 @@ def cli(argv):
         nargs='*',
     )
     parser.add_argument(
+        '-d', '--dump',
+        default='',
+        dest='dump_path',
+        help='file to write memory usage history to when done',
+        metavar='path',
+    )
+    parser.add_argument(
         '-l', '--length',
         default=60,
         dest='length',
@@ -108,7 +128,7 @@ def cli(argv):
         '-o', '--output',
         default='',
         dest='output_path',
-        help='output file (leave empty for the standard error)',
+        help='output file (leave empty for standard error)',
         metavar='path',
     )
     parser.add_argument(
