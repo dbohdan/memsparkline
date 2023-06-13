@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2020, 2022 D. Bohdan
+# Copyright (c) 2020, 2022-2023 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,9 @@ import unittest
 
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
-COMMAND = shlex.split(os.environ.get('MEMSPARKLINE_COMMAND', ''))
+COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
 if COMMAND == []:
-    COMMAND = [os.path.join(TEST_PATH, '..', 'memsparkline')]
+    COMMAND = [os.path.join(TEST_PATH, "..", "memsparkline")]
 
 
 def run(*args, check=True, stdin=None):
@@ -40,42 +40,40 @@ def run(*args, check=True, stdin=None):
         stdin=stdin,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
-    ).stderr.decode('utf-8')
+    ).stderr.decode("utf-8")
 
 
 class TestMemsparkline(unittest.TestCase):
-
     def test_usage(self):
         self.assertRegex(
             run(check=False),
-            r'^usage',
+            r"^usage",
         )
 
     def test_basic(self):
         self.assertRegex(
-            run('sleep', '1'),
-            r'(?s).*avg:.*max:',
+            run("sleep", "1"),
+            r"(?s).*avg:.*max:",
         )
 
     def test_length(self):
-        stderr = run('-l', '10', '-w', '10', 'sleep', '1') \
-
+        stderr = run("-l", "10", "-w", "10", "sleep", "1")
 
         self.assertRegex(
             stderr,
-            r'(?m)\r[^ ]{10} \d+\.\d{2}\n avg',
+            r"(?m)\r[^ ]{10} \d+\.\d{2}\n avg",
         )
 
     def test_wait_1(self):
-        stderr = run('-w', '2000', 'sleep', '1')
+        stderr = run("-w", "2000", "sleep", "1")
 
-        self.assertEqual(len(stderr.split('\n')), 5)
+        self.assertEqual(len(stderr.split("\n")), 5)
 
     def test_wait_2(self):
-        stderr = run('-n', '-w', '100', 'sleep', '1')
+        stderr = run("-n", "-w", "100", "sleep", "1")
 
-        self.assertIn(len(stderr.split('\n')), range(10, 15))
+        self.assertIn(len(stderr.split("\n")), range(10, 15))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

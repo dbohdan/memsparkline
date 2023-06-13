@@ -28,7 +28,7 @@ import time
 
 import psutil
 
-SPARKLINE_TICKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
 
 
@@ -48,95 +48,89 @@ def main(argv):
         process.wait()
 
         if history == []:
-            print('no data collected', file=output)
+            print("no data collected", file=output)
         else:
             if not args.newlines:
-                print('', file=output)
-            summary = summarize(
-                history,
-                maximum,
-                start_dt,
-                datetime.datetime.now()
-            )
-            print('\n'.join(summary), file=output)
+                print("", file=output)
+            summary = summarize(history, maximum, start_dt, datetime.datetime.now())
+            print("\n".join(summary), file=output)
 
-    if args.dump_path != '':
-        with open(args.dump_path, 'w') as hist_file:
+    if args.dump_path != "":
+        with open(args.dump_path, "w") as hist_file:
             for value in history:
                 print(value, file=hist_file)
 
 
 def summarize(history, maximum, start_dt, end_dt):
     summary = []
-    summary.append(
-        ' avg: %0.2f' % (sum(history) / len(history) / USAGE_DIVISOR)
-    )
-    summary.append(
-        ' max: %0.2f' % (maximum / USAGE_DIVISOR)
-    )
+    summary.append(" avg: %0.2f" % (sum(history) / len(history) / USAGE_DIVISOR))
+    summary.append(" max: %0.2f" % (maximum / USAGE_DIVISOR))
 
     delta = end_dt - start_dt
-    hms, frac = str(delta).split('.')
+    hms, frac = str(delta).split(".")
     # For proper rounding, don't just slice frac.
-    millis = '%.03f' % float('0.' + frac)
-    summary.append(
-        'time: %s.%s' % (hms, millis[2:])
-    )
+    millis = "%.03f" % float("0." + frac)
+    summary.append("time: %s.%s" % (hms, millis[2:]))
 
     return summary
 
 
 def cli(argv):
     parser = argparse.ArgumentParser(
-        description='Track the RAM usage (resident set size) of a process and '
-        'its descendants in real time.',
+        description="Track the RAM usage (resident set size) of a process and "
+        "its descendants in real time.",
     )
     parser.add_argument(
-        'command',
+        "command",
         default=[],
-        help='command to run',
+        help="command to run",
     )
     parser.add_argument(
-        'arguments',
+        "arguments",
         default=[],
-        help='arguments to the command',
-        metavar='arg',
-        nargs='*',
+        help="arguments to the command",
+        metavar="arg",
+        nargs="*",
     )
     parser.add_argument(
-        '-d', '--dump',
-        default='',
-        dest='dump_path',
-        help='file to write memory usage history to when done',
-        metavar='path',
+        "-d",
+        "--dump",
+        default="",
+        dest="dump_path",
+        help="file to write memory usage history to when done",
+        metavar="path",
     )
     parser.add_argument(
-        '-l', '--length',
+        "-l",
+        "--length",
         default=60,
-        dest='length',
-        help='sparkline length (default: %(default)d)',
-        metavar='n',
+        dest="length",
+        help="sparkline length (default: %(default)d)",
+        metavar="n",
         type=int,
     )
     parser.add_argument(
-        '-n', '--newlines',
-        action='store_true',
+        "-n",
+        "--newlines",
+        action="store_true",
         default=False,
-        help='print the sparkline on a new line every time',
+        help="print the sparkline on a new line every time",
     )
     parser.add_argument(
-        '-o', '--output',
-        default='',
-        dest='output_path',
-        help='output file (leave empty for standard error)',
-        metavar='path',
+        "-o",
+        "--output",
+        default="",
+        dest="output_path",
+        help="output file (leave empty for standard error)",
+        metavar="path",
     )
     parser.add_argument(
-        '-w', '--wait',
+        "-w",
+        "--wait",
         default=1000,
-        dest='wait',
-        help='how long to wait between taking samples (default: %(default)d)',
-        metavar='ms',
+        dest="wait",
+        help="how long to wait between taking samples (default: %(default)d)",
+        metavar="ms",
         type=int,
     )
 
@@ -148,8 +142,8 @@ def cli(argv):
 @contextlib.contextmanager
 def open_output(path):
     handle = sys.stderr
-    if path != '':
-        handle = open(path, 'w', 1)
+    if path != "":
+        handle = open(path, "w", 1)
 
     try:
         yield handle
@@ -159,7 +153,7 @@ def open_output(path):
 
 
 def track(parent, output, newlines=False, sparkline_length=20, wait=1000):
-    fmt = '%s %0.2f\n' if newlines else '\r%s %0.2f'
+    fmt = "%s %0.2f\n" if newlines else "\r%s %0.2f"
     history = []
     maximum = 0
 
@@ -176,7 +170,7 @@ def track(parent, output, newlines=False, sparkline_length=20, wait=1000):
             line = sparkline(0, maximum, latest)
             print(
                 fmt % (line, total / USAGE_DIVISOR),
-                end='',
+                end="",
                 file=output,
             )
 
@@ -193,13 +187,11 @@ def sparkline(minimum, maximum, data):
     if minimum == maximum:
         return SPARKLINE_TICKS[tick_max // 2] * len(data)
 
-    return ''.join(
-        SPARKLINE_TICKS[int(
-            tick_max * (x - minimum) / (maximum - minimum)
-        )]
+    return "".join(
+        SPARKLINE_TICKS[int(tick_max * (x - minimum) / (maximum - minimum))]
         for x in data
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv)
