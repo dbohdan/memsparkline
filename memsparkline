@@ -98,7 +98,7 @@ def cli(argv):
     parser.add_argument(
         "arguments",
         default=[],
-        help="arguments to the command",
+        help="arguments to command",
         metavar="arg",
         nargs="*",
     )
@@ -107,7 +107,7 @@ def cli(argv):
         "--dump",
         default="",
         dest="dump_path",
-        help="file to write the full resident set size history to when done",
+        help="file in which to write full memory usage history when finished",
         metavar="path",
     )
     parser.add_argument(
@@ -124,7 +124,7 @@ def cli(argv):
         "--newlines",
         action="store_true",
         default=False,
-        help="print the sparkline on a new line every time",
+        help="print new sparkline on new line instead of over previous",
     )
     parser.add_argument(
         "-o",
