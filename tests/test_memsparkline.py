@@ -74,6 +74,14 @@ class TestMemsparkline(unittest.TestCase):
 
         self.assertIn(len(stderr.split("\n")), range(10, 15))
 
+    def test_missing_binary(self):
+        with self.assertRaises(subprocess.CalledProcessError) as err:
+            run("no-such-binary-exists")
+            self.assertRegex(
+                err.output,
+                r"No such file or directory",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
