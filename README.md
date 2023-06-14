@@ -29,10 +29,22 @@ Python 3.5 or later, [psutil](https://github.com/giampaolo/psutil).
 sudo apt install python3-psutil
 ```
 
-### FreeBSD 12
+### DragonFly BSD 6.6, FreeBSD 13.1
 
 ```sh
-sudo pkg install py37-psutil
+sudo pkg install py39-psutil
+```
+
+### NetBSD 9.3
+
+```sh
+sudo pkgin in py310-psutil
+```
+
+### OpenBSD
+
+```sh
+doas pkg_add py3-psutil
 ```
 
 
