@@ -67,6 +67,8 @@ def main(argv):
             )
             sys.exit(1)
 
+        sys.exit(process.returncode)
+
 
 def summarize(history, maximum, start_dt, end_dt):
     summary = []
