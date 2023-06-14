@@ -36,29 +36,36 @@ def main(argv):
     args = cli(argv)
 
     with open_output(args.output_path) as output:
-        start_dt = datetime.datetime.now()
-        process = psutil.Popen([args.command] + args.arguments)
-        maximum, history = track(
-            process,
-            output,
-            newlines=args.newlines,
-            sparkline_length=args.length,
-            wait=args.wait,
-        )
-        process.wait()
+        try:
+            start_dt = datetime.datetime.now()
+            process = psutil.Popen([args.command] + args.arguments)
+            maximum, history = track(
+                process,
+                output,
+                newlines=args.newlines,
+                sparkline_length=args.length,
+                wait=args.wait,
+            )
+            process.wait()
 
-        if history == []:
-            print("no data collected", file=output)
-        else:
-            if not args.newlines:
-                print("", file=output)
-            summary = summarize(history, maximum, start_dt, datetime.datetime.now())
-            print("\n".join(summary), file=output)
+            if history == []:
+                print("no data collected", file=output)
+            else:
+                if not args.newlines:
+                    print("", file=output)
+                summary = summarize(history, maximum, start_dt, datetime.datetime.now())
+                print("\n".join(summary), file=output)
 
-    if args.dump_path != "":
-        with open(args.dump_path, "w") as hist_file:
-            for value in history:
-                print(value, file=hist_file)
+            if args.dump_path != "":
+                with open(args.dump_path, "w") as hist_file:
+                    for value in history:
+                        print(value, file=hist_file)
+        except Exception as err:
+            print(
+                "error: %s" % err,
+                file=output,
+            )
+            sys.exit(1)
 
 
 def summarize(history, maximum, start_dt, end_dt):
