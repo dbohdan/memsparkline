@@ -36,7 +36,7 @@ VERSION = "0.2.0"
 def main(argv):
     args = cli(argv)
 
-    with open_output(args.output_path) as output:
+    with open_output(args.output_path, sys.stderr) as output:
         try:
             start_dt = datetime.datetime.now()
             process = psutil.Popen([args.command] + args.arguments)
@@ -131,7 +131,7 @@ def cli(argv):
         "--output",
         default="",
         dest="output_path",
-        help="output file (leave empty for standard error)",
+        help='output file (leave empty or set to "-" for standard error)',
         metavar="path",
     )
     parser.add_argument(
@@ -156,9 +156,9 @@ def cli(argv):
 
 
 @contextlib.contextmanager
-def open_output(path):
-    handle = sys.stderr
-    if path != "":
+def open_output(path, fallback):
+    handle = fallback
+    if path not in {"", "-"}:
         handle = open(path, "w", 1)
 
     try:
