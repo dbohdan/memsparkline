@@ -33,14 +33,22 @@ if COMMAND == []:
     COMMAND = [os.path.join(TEST_PATH, "..", "memsparkline")]
 
 
-def run(*args, check=True, stdin=None):
-    return subprocess.run(
+def run(*args, check=True, stdin=None, return_stdout=False, return_stderr=True):
+    completed = subprocess.run(
         COMMAND + list(args),
         check=check,
         stdin=stdin,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
-    ).stderr.decode("utf-8")
+    )
+
+    output = ""
+    if return_stdout:
+        output += completed.stdout.decode("utf-8")
+    if return_stderr:
+        output += completed.stderr.decode("utf-8")
+
+    return output
 
 
 class TestMemsparkline(unittest.TestCase):
@@ -81,6 +89,12 @@ class TestMemsparkline(unittest.TestCase):
                 err.output,
                 r"No such file or directory",
             )
+
+    def test_version(self):
+        self.assertRegex(
+            run("-v", return_stdout=True),
+            r"\d+\.\d+\.\d+",
+        )
 
 
 if __name__ == "__main__":

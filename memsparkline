@@ -30,6 +30,7 @@ import psutil
 
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
+VERSION = "0.2.0"
 
 
 def main(argv):
@@ -132,6 +133,12 @@ def cli(argv):
         dest="output_path",
         help="output file (leave empty for standard error)",
         metavar="path",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=VERSION,
     )
     parser.add_argument(
         "-w",
