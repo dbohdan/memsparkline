@@ -131,7 +131,7 @@ def cli(argv):
         "--output",
         default="",
         dest="output_path",
-        help='output file (leave empty or set to "-" for standard error)',
+        help='output file ("" or "-" for standard error)',
         metavar="path",
     )
     parser.add_argument(
