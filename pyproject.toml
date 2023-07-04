@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "memsparkline"
+version = "0.2.0"
+description = "Track the RAM usage of a process and its children in real time"
+authors = ["D. Bohdan <dbohdan@dbohdan.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.4.1"
+types-psutil = "^5.9.5.15"
+black = "^23.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
