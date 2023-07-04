@@ -1,4 +1,4 @@
-image: alpine:3.12
+image: alpine:3.18
 
 before_script:
   - apk add poetry python3 py3-psutil
