@@ -22,9 +22,10 @@
 
 import argparse
 import contextlib
-import datetime
+from datetime import datetime
 import sys
 import time
+from typing import IO, Iterator, List
 
 import psutil
 
@@ -33,12 +34,12 @@ USAGE_DIVISOR = 1 << 20
 VERSION = "0.2.0"
 
 
-def main(argv):
+def main(argv: List[str]) -> None:
     args = cli(argv)
 
-    with open_output(args.output_path, sys.stderr) as output:
+    with open_output(args.output_path, sys.stderr) as output:  # type: IO[str]
         try:
-            start_dt = datetime.datetime.now()
+            start_dt = datetime.now()
             process = psutil.Popen([args.command] + args.arguments)
             maximum, history = track(
                 process,
@@ -54,7 +55,7 @@ def main(argv):
             else:
                 if not args.newlines:
                     print("", file=output)
-                summary = summarize(history, maximum, start_dt, datetime.datetime.now())
+                summary = summarize(history, maximum, start_dt, datetime.now())
                 print("\n".join(summary), file=output)
 
             if args.dump_path != "":
@@ -71,7 +72,9 @@ def main(argv):
         sys.exit(process.returncode)
 
 
-def summarize(history, maximum, start_dt, end_dt):
+def summarize(
+    history: List[int], maximum: int, start_dt: datetime, end_dt: datetime
+) -> List[str]:
     summary = []
     summary.append(" avg: %0.2f" % (sum(history) / len(history) / USAGE_DIVISOR))
     summary.append(" max: %0.2f" % (maximum / USAGE_DIVISOR))
@@ -85,7 +88,7 @@ def summarize(history, maximum, start_dt, end_dt):
     return summary
 
 
-def cli(argv):
+def cli(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Track the RAM usage (resident set size) of a process and "
         "its descendants in real time.",
@@ -156,7 +159,7 @@ def cli(argv):
 
 
 @contextlib.contextmanager
-def open_output(path, fallback):
+def open_output(path: str, fallback: IO[str]) -> Iterator:
     handle = fallback
     if path not in {"", "-"}:
         handle = open(path, "w", 1)
@@ -168,7 +171,13 @@ def open_output(path, fallback):
             handle.close()
 
 
-def track(parent, output, newlines=False, sparkline_length=20, wait=1000):
+def track(
+    parent: psutil.Popen,
+    output: IO[str],
+    newlines: bool = False,
+    sparkline_length: int = 20,
+    wait: int = 1000,
+):
     fmt = "%s %0.2f\n" if newlines else "\r%s %0.2f"
     history = []
     maximum = 0
@@ -197,7 +206,7 @@ def track(parent, output, newlines=False, sparkline_length=20, wait=1000):
     return (maximum, history)
 
 
-def sparkline(minimum, maximum, data):
+def sparkline(minimum: float, maximum: float, data: List[float]) -> str:
     tick_max = len(SPARKLINE_TICKS) - 1
 
     if minimum == maximum:
