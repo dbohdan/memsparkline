@@ -69,6 +69,14 @@ class TestMemsparkline(unittest.TestCase):
 
         self.assertRegex(
             stderr,
+            r"(?m)\r[^ ]{10} \d+\.\d\n avg",
+        )
+
+    def test_mem_format(self):
+        stderr = run("-l", "10", "-w", "10", "-m", "%0.2f", "sleep", "1")
+
+        self.assertRegex(
+            stderr,
             r"(?m)\r[^ ]{10} \d+\.\d{2}\n avg",
         )
 

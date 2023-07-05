@@ -47,6 +47,7 @@ def main(argv: List[str]) -> None:
                 newlines=args.newlines,
                 sparkline_length=args.length,
                 wait=args.wait,
+                mem_format=args.mem_format
             )
             process.wait()
 
@@ -55,7 +56,7 @@ def main(argv: List[str]) -> None:
             else:
                 if not args.newlines:
                     print("", file=output)
-                summary = summarize(history, maximum, start_dt, datetime.now())
+                summary = summarize(history, maximum, start_dt, datetime.now(), args.mem_format)
                 print("\n".join(summary), file=output)
 
             if args.dump_path != "":
@@ -73,11 +74,11 @@ def main(argv: List[str]) -> None:
 
 
 def summarize(
-    history: List[int], maximum: int, start_dt: datetime, end_dt: datetime
+        history: List[int], maximum: int, start_dt: datetime, end_dt: datetime, mem_format : str = "%0.1f"
 ) -> List[str]:
     summary = []
-    summary.append(" avg: %0.2f" % (sum(history) / len(history) / USAGE_DIVISOR))
-    summary.append(" max: %0.2f" % (maximum / USAGE_DIVISOR))
+    summary.append((" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR))
+    summary.append((" max: " + mem_format) % (maximum / USAGE_DIVISOR))
 
     delta = end_dt - start_dt
     hms, frac = str(delta).split(".")
@@ -112,6 +113,15 @@ def cli(argv: List[str]) -> argparse.Namespace:
         dest="dump_path",
         help="file in which to write full memory usage history when finished",
         metavar="path",
+    )
+    parser.add_argument(
+        "-m",
+        "--mem-format",
+        default="%0.1f",
+        dest="mem_format",
+        help="format string for memory numbers (default: %(default)s)",
+        metavar="fmt",
+        type=str,
     )
     parser.add_argument(
         "-l",
@@ -177,8 +187,10 @@ def track(
     newlines: bool = False,
     sparkline_length: int = 20,
     wait: int = 1000,
+    mem_format : str = "0.1f%"
 ):
-    fmt = "%s %0.2f\n" if newlines else "\r%s %0.2f"
+    core_fmt = "%s " + mem_format
+    fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
     history = []
     maximum = 0
 
