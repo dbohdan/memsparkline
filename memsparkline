@@ -47,7 +47,7 @@ def main(argv: List[str]) -> None:
                 newlines=args.newlines,
                 sparkline_length=args.length,
                 wait=args.wait,
-                mem_format=args.mem_format
+                mem_format=args.mem_format,
             )
             process.wait()
 
@@ -56,7 +56,9 @@ def main(argv: List[str]) -> None:
             else:
                 if not args.newlines:
                     print("", file=output)
-                summary = summarize(history, maximum, start_dt, datetime.now(), args.mem_format)
+                summary = summarize(
+                    history, maximum, start_dt, datetime.now(), args.mem_format
+                )
                 print("\n".join(summary), file=output)
 
             if args.dump_path != "":
@@ -74,10 +76,16 @@ def main(argv: List[str]) -> None:
 
 
 def summarize(
-        history: List[int], maximum: int, start_dt: datetime, end_dt: datetime, mem_format : str = "%0.1f"
+    history: List[int],
+    maximum: int,
+    start_dt: datetime,
+    end_dt: datetime,
+    mem_format: str = "%0.1f",
 ) -> List[str]:
     summary = []
-    summary.append((" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR))
+    summary.append(
+        (" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR)
+    )
     summary.append((" max: " + mem_format) % (maximum / USAGE_DIVISOR))
 
     delta = end_dt - start_dt
@@ -187,7 +195,7 @@ def track(
     newlines: bool = False,
     sparkline_length: int = 20,
     wait: int = 1000,
-    mem_format : str = "0.1f%"
+    mem_format: str = "0.1f%",
 ):
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
