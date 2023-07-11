@@ -25,7 +25,8 @@ import contextlib
 from datetime import datetime
 import sys
 import time
-from typing import IO, Iterator, List
+from typing import IO
+from collections.abc import Iterator
 
 import psutil
 
@@ -34,7 +35,7 @@ USAGE_DIVISOR = 1 << 20
 VERSION = "0.2.0"
 
 
-def main(argv: List[str]) -> None:
+def main(argv: list[str]) -> None:
     args = cli(argv)
 
     with open_output(args.output_path, sys.stderr) as output:  # type: IO[str]
@@ -76,12 +77,12 @@ def main(argv: List[str]) -> None:
 
 
 def summarize(
-    history: List[int],
+    history: list[int],
     maximum: int,
     start_dt: datetime,
     end_dt: datetime,
     mem_format: str = "%0.1f",
-) -> List[str]:
+) -> list[str]:
     summary = []
     summary.append(
         (" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR)
@@ -92,12 +93,12 @@ def summarize(
     hms, frac = str(delta).split(".")
     # For proper rounding, don't just slice frac.
     millis = "%.03f" % float("0." + frac)
-    summary.append("time: %s.%s" % (hms, millis[2:]))
+    summary.append(f"time: {hms}.{millis[2:]}")
 
     return summary
 
 
-def cli(argv: List[str]) -> argparse.Namespace:
+def cli(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Track the RAM usage (resident set size) of a process and "
         "its descendants in real time.",
@@ -226,7 +227,7 @@ def track(
     return (maximum, history)
 
 
-def sparkline(minimum: float, maximum: float, data: List[float]) -> str:
+def sparkline(minimum: float, maximum: float, data: list[float]) -> str:
     tick_max = len(SPARKLINE_TICKS) - 1
 
     if minimum == maximum:
