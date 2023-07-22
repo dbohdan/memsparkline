@@ -38,7 +38,8 @@ def run(*args, check=True, stdin=None, return_stdout=False, return_stderr=True):
         COMMAND + list(args),
         check=check,
         stdin=stdin,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
 
     output = ""
