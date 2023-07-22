@@ -25,8 +25,7 @@ import contextlib
 from datetime import datetime
 import sys
 import time
-from typing import IO, List
-from collections.abc import Iterator
+from typing import Iterator, IO, List, Tuple
 
 import psutil
 
@@ -178,7 +177,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
 
 
 @contextlib.contextmanager
-def open_output(path: str, fallback: IO[str]) -> Iterator:
+def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
     handle = fallback
     if path not in {"", "-"}:
         handle = open(path, "w", 1)
@@ -197,7 +196,7 @@ def track(
     sparkline_length: int = 20,
     wait: int = 1000,
     mem_format: str = "0.1f%",
-):
+) -> Tuple[int, List[int]]:
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
     history = []
