@@ -30,7 +30,7 @@ import unittest
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
 if COMMAND == []:
-    COMMAND = [os.path.join(TEST_PATH, "..", "memsparkline")]
+    COMMAND = [os.path.join(TEST_PATH, "..", "memsparkline.py")]
 
 
 def run(*args, check=True, stdin=None, return_stdout=False, return_stderr=True):

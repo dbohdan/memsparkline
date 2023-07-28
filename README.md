@@ -6,7 +6,7 @@ Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_
 ## Examples
 
 ```none
-> ./memsparkline -- chromium-browser --incognito http://localhost:8081/
+> memsparkline -- chromium-browser --incognito http://localhost:8081/
 ▁▁▁▁▄▇▇▇█ 789.53
  avg: 371.04
  max: 789.53
@@ -14,7 +14,7 @@ time: 0:00:12.345
 ```
 
 ```none
-> ./memsparkline -o foo command &
+> memsparkline -o foo command &
 > tail -f foo
 ```
 
