@@ -21,7 +21,7 @@ time: 0:00:12.345
 
 ## Dependencies
 
-Python 3.5 or later, [psutil](https://github.com/giampaolo/psutil).
+Python 3.7 or later, [psutil](https://github.com/giampaolo/psutil).
 
 ### Debian/Ubuntu
 
