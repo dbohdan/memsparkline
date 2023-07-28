@@ -8,12 +8,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"
+psutil = "^5.9.5"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.4.1"
 types-psutil = "^5.9.5.15"
 black = "^23.3.0"
 ruff = "^0.0.277"
+pytest = "^7.4.0"
 
 [build-system]
 requires = ["poetry-core"]
