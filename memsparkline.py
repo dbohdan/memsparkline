@@ -179,9 +179,9 @@ def cli(argv: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "-o",
         "--output",
-        default="",
+        default="-",
         dest="output_path",
-        help='output file ("" or "-" for standard error)',
+        help='output file ("-" for standard error)',
         metavar="path",
     )
     parser.add_argument(
@@ -208,7 +208,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
 @contextlib.contextmanager
 def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
     handle = fallback
-    if path not in {"", "-"}:
+    if path != "-":
         handle = open(path, "w", 1)
 
     try:
