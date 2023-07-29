@@ -33,11 +33,16 @@ if COMMAND == []:
     COMMAND = [os.path.join(TEST_PATH, "..", "memsparkline.py")]
 
 
-def run(*args, check=True, stdin=None, return_stdout=False, return_stderr=True):
+def run(
+    *args: str,
+    check: bool = True,
+    return_stdout: bool = False,
+    return_stderr: bool = True
+) -> str:
     completed = subprocess.run(
         COMMAND + list(args),
         check=check,
-        stdin=stdin,
+        stdin=None,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -52,19 +57,19 @@ def run(*args, check=True, stdin=None, return_stdout=False, return_stderr=True):
 
 
 class TestMemsparkline(unittest.TestCase):
-    def test_usage(self):
+    def test_usage(self) -> None:
         self.assertRegex(
             run(check=False),
             r"^usage",
         )
 
-    def test_basic(self):
+    def test_basic(self) -> None:
         self.assertRegex(
             run("sleep", "1"),
             r"(?s).*avg:.*max:",
         )
 
-    def test_length(self):
+    def test_length(self) -> None:
         stderr = run("-l", "10", "-w", "10", "sleep", "1")
 
         self.assertRegex(
@@ -72,7 +77,7 @@ class TestMemsparkline(unittest.TestCase):
             r"(?m)\r[^ ]{10} \d+\.\d\n avg",
         )
 
-    def test_mem_format(self):
+    def test_mem_format(self) -> None:
         stderr = run("-l", "10", "-w", "10", "-m", "%0.2f", "sleep", "1")
 
         self.assertRegex(
@@ -80,25 +85,25 @@ class TestMemsparkline(unittest.TestCase):
             r"(?m)\r[^ ]{10} \d+\.\d{2}\n avg",
         )
 
-    def test_wait_1(self):
+    def test_wait_1(self) -> None:
         stderr = run("-w", "2000", "sleep", "1")
 
         self.assertEqual(len(stderr.split("\n")), 5)
 
-    def test_wait_2(self):
+    def test_wait_2(self) -> None:
         stderr = run("-n", "-w", "100", "sleep", "1")
 
         self.assertIn(len(stderr.split("\n")), range(10, 15))
 
-    def test_missing_binary(self):
+    def test_missing_binary(self) -> None:
         with self.assertRaises(subprocess.CalledProcessError) as err:
             run("no-such-binary-exists")
             self.assertRegex(
-                err.output,
+                err.output,  # type: ignore
                 r"No such file or directory",
             )
 
-    def test_version(self):
+    def test_version(self) -> None:
         self.assertRegex(
             run("-v", return_stdout=True),
             r"\d+\.\d+\.\d+",
