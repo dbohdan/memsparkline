@@ -3,6 +3,7 @@
 Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline). See the average and the maximum usage after the process exits, as well as the run time.
 
 
+
 ## Examples
 
 ```none
@@ -10,13 +11,20 @@ Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_
 ▁▁▁▁▄▇▇▇█ 789.5
  avg: 371.0
  max: 789.5
-time: 0:00:12.3
+time: 0:00:12.0
 ```
 
 ```none
 > memsparkline -o foo command &
 > tail -f foo
 ```
+
+
+## Compatibility and limitations
+
+memsparkline works on POSIX systems supported by [psutil](https://github.com/giampaolo/psutil). It has been tested on Debian, Ubuntu, FreeBSD, NetBSD, and OpenBSD. It seems to work on Windows, but Windows support has received minimal testing. The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts but correctly on Windows 10 with the font NSimSun.
+
+memsparkline measures run time less precisely than time(1). The granularity with which it measures run time depends on the `--wait` option.
 
 
 ## Installation
@@ -39,8 +47,8 @@ pip install --user memsparkline
 
 ### Manual installation
 
-1. Install the dependencies using the OS-specific instrutions below.
-2. Download `memsparkline.py` and copy it to a directory in `PATH`. For example,
+1. Install the dependencies using the OS-specific instructions below.
+2. Download `memsparkline.py` and copy it to a directory in `PATH` as `memsparkline`. For example,
 
 ```sh
 git clone https://gitlab.com/dbohdan/memsparkline
@@ -48,27 +56,27 @@ cd memsparkline
 sudo install memsparkline.py /usr/local/bin/memsparkline
 ```
 
-How to install the dependencies:
+#### Dependencies
 
-#### Debian/Ubuntu
+##### Debian/Ubuntu
 
 ```sh
 sudo apt install python3-psuti
 ```
 
-#### DragonFly BSD 6.6, FreeBSD 13.1
+##### DragonFly BSD 6.6, FreeBSD 13.1
 
 ```sh
 sudo pkg install py39-psutil
 ```
 
-#### NetBSD 9.3
+##### NetBSD 9.3
 
 ```sh
 sudo pkgin in py310-psutil
 ```
 
-#### OpenBSD
+##### OpenBSD
 
 ```sh
 doas pkg_add py3-psutil
