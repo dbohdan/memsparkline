@@ -136,30 +136,18 @@ def cli(argv: List[str]) -> argparse.Namespace:
         nargs="*",
     )
     parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=VERSION,
+    )
+    parser.add_argument(
         "-d",
         "--dump",
         default="",
         dest="dump_path",
-        help="file in which to write full memory usage history when finished",
+        help="file to which to write full memory usage history when finished",
         metavar="path",
-    )
-    parser.add_argument(
-        "-m",
-        "--mem-format",
-        default="%0.1f",
-        dest="mem_format",
-        help="format string for memory amounts (default: %(default)s)",
-        metavar="fmt",
-        type=str,
-    )
-    parser.add_argument(
-        "-t",
-        "--time-format",
-        default="%d:%02d:%04.1f",
-        dest="time_format",
-        help="format string for run time (default: %(default)s)",
-        metavar="fmt",
-        type=str,
     )
     parser.add_argument(
         "-l",
@@ -169,6 +157,15 @@ def cli(argv: List[str]) -> argparse.Namespace:
         help="sparkline length (default: %(default)d)",
         metavar="n",
         type=int,
+    )
+    parser.add_argument(
+        "-m",
+        "--mem-format",
+        default="%0.1f",
+        dest="mem_format",
+        help="format string for memory amounts (default: %(default)s)",
+        metavar="fmt",
+        type=str,
     )
     parser.add_argument(
         "-n",
@@ -186,10 +183,20 @@ def cli(argv: List[str]) -> argparse.Namespace:
         metavar="path",
     )
     parser.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        version=VERSION,
+        "-q",
+        "--quiet",
+        dest="quiet",
+        action="store_true",
+        help="print no sparklines, only final report",
+    )
+    parser.add_argument(
+        "-t",
+        "--time-format",
+        default="%d:%02d:%04.1f",
+        dest="time_format",
+        help="format string for run time (default: %(default)s)",
+        metavar="fmt",
+        type=str,
     )
     parser.add_argument(
         "-w",
@@ -199,13 +206,6 @@ def cli(argv: List[str]) -> argparse.Namespace:
         help="how long to wait between taking samples (default: %(default)d)",
         metavar="ms",
         type=int,
-    )
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        dest="quiet",
-        action="store_true",
-        help="print no sparklines, only final report",
     )
 
     args = parser.parse_args(argv[1:])
