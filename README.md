@@ -132,3 +132,10 @@ optional arguments:
 ## License
 
 MIT.
+
+
+## See also
+
+* [DragonFly BSD](https://man.dragonflybsd.org/?command=time&section=ANY), [FreeBSD](https://man.freebsd.org/cgi/man.cgi?query=time&format=html), [NetBSD](https://man.netbsd.org/time.1), [OpenBSD](https://man.openbsd.org/time) time(1) `-l` flag.
+* [GNU time(1)](https://linux.die.net/man/1/time) `-v` flag.
+* [memusg](http://gist.github.com/526585) — a Bash script for FreeBSD, Linux, and macOS. Last updated in 2015.
