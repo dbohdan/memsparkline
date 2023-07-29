@@ -1,6 +1,6 @@
 # memsparkline
 
-Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline). See the average and the maximum usage after the process exits, as well as the runtime.
+Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline). See the average and the maximum usage after the process exits, as well as the run time.
 
 
 ## Examples
@@ -10,7 +10,7 @@ Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_
 ▁▁▁▁▄▇▇▇█ 789.5
  avg: 371.0
  max: 789.5
-time: 0:00:12.345
+time: 0:00:12.3
 ```
 
 ```none
@@ -78,9 +78,9 @@ doas pkg_add py3-psutil
 ## Usage
 
 ```none
-usage: memsparkline.py [-h] [-d path] [-m fmt] [-l n] [-n] [-o path] [-v]
-                       [-w ms]
-                       command [arg ...]
+usage: memsparkline.py [-h] [-d path] [-m fmt] [-t fmt] [-l n] [-n] [-o path]
+                       [-v] [-w ms]
+                       command [arg [arg ...]]
 
 Track the RAM usage (resident set size) of a process and its descendants in
 real time.
@@ -89,12 +89,14 @@ positional arguments:
   command               command to run
   arg                   arguments to command
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   -d path, --dump path  file in which to write full memory usage history when
                         finished
   -m fmt, --mem-format fmt
                         format string for memory numbers (default: %0.1f)
+  -t fmt, --time-format fmt
+                        format string for run time (default: %d:%02d:%04.1f)
   -l n, --length n      sparkline length (default: 20)
   -n, --newlines        print new sparkline on new line instead of over
                         previous

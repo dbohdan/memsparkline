@@ -85,6 +85,14 @@ class TestMemsparkline(unittest.TestCase):
             r"(?m)\r[^ ]{10} \d+\.\d{2}\n avg",
         )
 
+    def test_time_format(self) -> None:
+        stderr = run("-l", "10", "-t", "%d:%05d:%06.3f", "sleep", "1")
+
+        self.assertRegex(
+            stderr,
+            r"(?m)time: \d+\:\d{5}:\d{2}\.\d{3}\n",
+        )
+
     def test_wait_1(self) -> None:
         stderr = run("-w", "2000", "sleep", "1")
 

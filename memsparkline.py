@@ -57,7 +57,12 @@ def main(argv: List[str]) -> None:
                 if not args.newlines:
                     print("", file=output)
                 summary = summarize(
-                    history, maximum, start_dt, datetime.now(), args.mem_format
+                    history,
+                    maximum,
+                    start_dt,
+                    datetime.now(),
+                    args.mem_format,
+                    args.time_format,
                 )
                 print("\n".join(summary), file=output)
 
@@ -75,12 +80,31 @@ def main(argv: List[str]) -> None:
         sys.exit(process.returncode)
 
 
+def hms_delta(
+    start_dt: datetime,
+    end_dt: datetime,
+) -> Tuple[int, int, float]:
+    delta = end_dt - start_dt
+    total_millis = (
+        delta.days * 24 * 60 * 60 * 1000
+        + delta.seconds * 1000
+        + delta.microseconds // 1000
+    )
+
+    hours, rem = divmod(total_millis, 60 * 60 * 1000)
+    minutes, rem = divmod(rem, 60 * 1000)
+    seconds = rem / 1000
+
+    return hours, minutes, seconds
+
+
 def summarize(
     history: List[int],
     maximum: int,
     start_dt: datetime,
     end_dt: datetime,
-    mem_format: str = "%0.1f",
+    mem_format: str,
+    time_format: str,
 ) -> List[str]:
     summary = []
     summary.append(
@@ -88,11 +112,7 @@ def summarize(
     )
     summary.append((" max: " + mem_format) % (maximum / USAGE_DIVISOR))
 
-    delta = end_dt - start_dt
-    hms, frac = str(delta).split(".")
-    # For proper rounding, don't just slice frac.
-    millis = "%.03f" % float("0." + frac)
-    summary.append("time: " + hms + "." + millis[2:])
+    summary.append("time: " + time_format % hms_delta(start_dt, end_dt))
 
     return summary
 
@@ -128,6 +148,15 @@ def cli(argv: List[str]) -> argparse.Namespace:
         default="%0.1f",
         dest="mem_format",
         help="format string for memory numbers (default: %(default)s)",
+        metavar="fmt",
+        type=str,
+    )
+    parser.add_argument(
+        "-t",
+        "--time-format",
+        default="%d:%02d:%04.1f",
+        dest="time_format",
+        help="format string for run time (default: %(default)s)",
         metavar="fmt",
         type=str,
     )
