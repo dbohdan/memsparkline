@@ -147,7 +147,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         "--mem-format",
         default="%0.1f",
         dest="mem_format",
-        help="format string for memory numbers (default: %(default)s)",
+        help="format string for memory amounts (default: %(default)s)",
         metavar="fmt",
         type=str,
     )

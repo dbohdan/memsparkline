@@ -15,8 +15,21 @@ time: 0:00:12.0
 ```
 
 ```none
-> memsparkline -o foo command &
-> tail -f foo
+> memsparkline -n -o log du /usr/ >/dev/null 2>&1 &
+> tail -f log
+█ 2.8
+▆█ 3.3
+▆▇█ 3.6
+▆▇▇█ 3.9
+▆▇▇█▆ 3.3
+▆▇▇█▆▆ 3.3
+▆▇▇█▆▆▆ 3.3
+▆▇▇█▆▆▆▆ 3.3
+▄▅▅▆▅▅▅▅█ 5.2
+▄▅▅▆▅▅▅▅██ 5.2
+ avg: 3.7
+ max: 5.2
+time: 0:00:10.1
 ```
 
 
@@ -102,7 +115,7 @@ optional arguments:
   -d path, --dump path  file in which to write full memory usage history when
                         finished
   -m fmt, --mem-format fmt
-                        format string for memory numbers (default: %0.1f)
+                        format string for memory amounts (default: %0.1f)
   -t fmt, --time-format fmt
                         format string for run time (default: %d:%02d:%04.1f)
   -l n, --length n      sparkline length (default: 20)
