@@ -46,7 +46,7 @@ memsparkline requires Python 3.7 or later.
 
 ### Installing from PyPI
 
-The recommended way to install memsparkline is with [pipx](https://gitlab.com/dbohdan/memsparkline).
+The recommended way to install memsparkline is with [pipx](https://github.com/pypa/pipx).
 
 ```sh
 pipx install memsparkline
