@@ -187,7 +187,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         "--quiet",
         dest="quiet",
         action="store_true",
-        help="print no sparklines, only final report",
+        help="do not print sparklines, only final report",
     )
     parser.add_argument(
         "-t",

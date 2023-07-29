@@ -122,7 +122,7 @@ optional arguments:
                         previous
   -o path, --output path
                         output file ("-" for standard error)
-  -q, --quiet           print no sparklines, only final report
+  -q, --quiet           do not print sparklines, only final report
   -t fmt, --time-format fmt
                         format string for run time (default: %d:%02d:%04.1f)
   -w ms, --wait ms      how long to wait between taking samples (default:
