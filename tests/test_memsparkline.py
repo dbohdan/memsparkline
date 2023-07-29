@@ -103,6 +103,14 @@ class TestMemsparkline(unittest.TestCase):
 
         self.assertIn(len(stderr.split("\n")), range(10, 15))
 
+    def test_quiet(self) -> None:
+        stderr = run("-q", "sleep", "1")
+
+        self.assertRegex(
+            stderr,
+            r"^ avg",
+        )
+
     def test_missing_binary(self) -> None:
         with self.assertRaises(subprocess.CalledProcessError) as err:
             run("no-such-binary-exists")

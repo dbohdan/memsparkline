@@ -48,13 +48,14 @@ def main(argv: List[str]) -> None:
                 sparkline_length=args.length,
                 wait=args.wait,
                 mem_format=args.mem_format,
+                quiet=args.quiet,
             )
             process.wait()
 
             if history == []:
                 print("no data collected", file=output)
             else:
-                if not args.newlines:
+                if not args.newlines and not args.quiet:
                     print("", file=output)
                 summary = summarize(
                     history,
@@ -199,6 +200,13 @@ def cli(argv: List[str]) -> argparse.Namespace:
         metavar="ms",
         type=int,
     )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        dest="quiet",
+        action="store_true",
+        help="print no sparklines, only final report",
+    )
 
     args = parser.parse_args(argv[1:])
 
@@ -225,6 +233,7 @@ def track(
     sparkline_length: int = 20,
     wait: int = 1000,
     mem_format: str = "0.1f%",
+    quiet: bool = False,
 ) -> Tuple[int, List[int]]:
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
@@ -240,13 +249,14 @@ def track(
             maximum = max(maximum, total)
             history.append(total)
 
-            latest = history[-sparkline_length:]
-            line = sparkline(0, maximum, latest)
-            print(
-                fmt % (line, total / USAGE_DIVISOR),
-                end="",
-                file=output,
-            )
+            if not quiet:
+                latest = history[-sparkline_length:]
+                line = sparkline(0, maximum, latest)
+                print(
+                    fmt % (line, total / USAGE_DIVISOR),
+                    end="",
+                    file=output,
+                )
 
             time.sleep(wait / 1000)
     except KeyboardInterrupt:
