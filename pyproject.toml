@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "memsparkline"
-version = "0.2.0"
+version = "0.3.0"
 description = "Track the RAM usage (resident set size) of a process and its descendants in real time."
 authors = ["D. Bohdan <dbohdan@dbohdan.com>"]
 license = "MIT"
