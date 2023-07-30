@@ -74,7 +74,7 @@ sudo install memsparkline.py /usr/local/bin/memsparkline
 ##### Debian/Ubuntu
 
 ```sh
-sudo apt install python3-psuti
+sudo apt install python3-psutil
 ```
 
 ##### DragonFly BSD 6.6, FreeBSD 13.1
