@@ -137,6 +137,15 @@ MIT.
 
 ## See also
 
-* [DragonFly BSD](https://man.dragonflybsd.org/?command=time&section=ANY), [FreeBSD](https://man.freebsd.org/cgi/man.cgi?query=time&format=html), [NetBSD](https://man.netbsd.org/time.1), [OpenBSD](https://man.openbsd.org/time) time(1) `-l` flag.
+memusg and spark inspired this project.
+
+### Tracking  memory usage
+
+* [DragonFly BSD](https://man.dragonflybsd.org/?command=time&section=ANY), [FreeBSD](https://man.freebsd.org/cgi/man.cgi?query=time&format=html), [NetBSD](https://man.netbsd.org/time.1), [OpenBSD](https://man.openbsd.org/time), and [macOS](https://ss64.com/osx/time.html) time(1) `-l` flag.
 * [GNU time(1)](https://linux.die.net/man/1/time) `-v` flag.
-* [memusg](http://gist.github.com/526585) — a Bash script for FreeBSD, Linux, and macOS. Last updated in 2015.
+* [memusg](http://gist.github.com/526585) — a Bash script for FreeBSD, Linux, and macOS that measures the peak resident set size of a process.
+
+### Sparklines
+
+* [spark](https://github.com/holman/spark) — a Bash script that generates a Unicode text sparkline from a list of numbers.
+* [sparkline.tcl](https://wiki.tcl-lang.org/page/Sparkline) — a Tcl script by the developer of this project that does the same. Adds a `--min` and `--max` option for setting the scale.
