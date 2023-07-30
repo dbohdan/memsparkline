@@ -99,9 +99,9 @@ doas pkg_add py3-psutil
 ## Usage
 
 ```none
-usage: memsparkline.py [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q]
-                       [-t fmt] [-w ms]
-                       command [arg [arg ...]]
+usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q]
+                    [-t fmt] [-w ms]
+                    command [arg [arg ...]]
 
 Track the RAM usage (resident set size) of a process and its descendants in
 real time.
