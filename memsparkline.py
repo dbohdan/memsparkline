@@ -34,8 +34,8 @@ USAGE_DIVISOR = 1 << 20
 VERSION = "0.3.0"
 
 
-def main(argv: List[str]) -> None:
-    args = cli(argv)
+def main() -> None:
+    args = cli(sys.argv)
 
     with open_output(args.output_path, sys.stderr) as output:  # type: IO[str]
         try:
@@ -278,4 +278,4 @@ def sparkline(minimum: float, maximum: float, data: List[float]) -> str:
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
