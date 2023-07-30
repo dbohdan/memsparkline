@@ -6,7 +6,7 @@ authors = ["D. Bohdan <dbohdan@dbohdan.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://gitlab.com/dbohdan/memsparkline"
-keywords = ["memory", "monitoring", "performance", "RAM", "resident set size"]
+keywords = ["memory", "monitoring", "performance", "RAM", "resident set size", "sparklines"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
