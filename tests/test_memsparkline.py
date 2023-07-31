@@ -24,13 +24,14 @@ import os
 import os.path
 import shlex
 import subprocess
+import sys
 import unittest
 
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
 if COMMAND == []:
-    COMMAND = [os.path.join(TEST_PATH, "..", "memsparkline.py")]
+    COMMAND = [sys.executable, os.path.join(TEST_PATH, "..", "memsparkline.py")]
 
 
 def run(
@@ -63,6 +64,15 @@ class TestMemsparkline(unittest.TestCase):
             r"^usage",
         )
 
+    def test_version(self) -> None:
+        self.assertRegex(
+            run("-v", return_stdout=True),
+            r"\d+\.\d+\.\d+",
+        )
+
+
+@unittest.skipUnless(os.name == "posix", "requires a POSIX OS")
+class TestMemsparklinePOSIX(unittest.TestCase):
     def test_basic(self) -> None:
         self.assertRegex(
             run("sleep", "1"),
@@ -119,12 +129,6 @@ class TestMemsparkline(unittest.TestCase):
                 r"No such file or directory",
             )
 
-    def test_version(self) -> None:
-        self.assertRegex(
-            run("-v", return_stdout=True),
-            r"\d+\.\d+\.\d+",
-        )
-
     def test_double_dash(self) -> None:
         self.assertIn(
             "\n",
@@ -136,6 +140,20 @@ class TestMemsparkline(unittest.TestCase):
             "\n",
             run("--", *COMMAND, "--", "ls", "-l", return_stdout=True),
         )
+
+
+@unittest.skipUnless(os.name == "nt", "requires Windows")
+class TestMemsparklineWindows(unittest.TestCase):
+    def test_cmd_basic(self) -> None:
+        self.assertRegex(
+            run("cmd.exe", "/c", "dir"),
+            r"(?s).*avg:.*max:",
+        )
+
+    def test_cmd_pause(self) -> None:
+        stderr = run("-w", "2000", "cmd", "/c", "timeout", "/t", "1")
+
+        self.assertEqual(len(stderr.split("\n")), 5)
 
 
 if __name__ == "__main__":
