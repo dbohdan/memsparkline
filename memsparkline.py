@@ -31,7 +31,7 @@ import psutil
 
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 
 
 def main() -> None:
