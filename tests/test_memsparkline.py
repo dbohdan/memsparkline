@@ -125,6 +125,18 @@ class TestMemsparkline(unittest.TestCase):
             r"\d+\.\d+\.\d+",
         )
 
+    def test_double_dash(self) -> None:
+        self.assertIn(
+            "\n",
+            run("--", "ls", "-l", return_stdout=True),
+        )
+
+    def test_two_double_dashes(self) -> None:
+        self.assertIn(
+            "\n",
+            run("--", *COMMAND, "--", "ls", "-l", return_stdout=True),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

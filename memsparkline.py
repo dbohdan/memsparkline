@@ -133,7 +133,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         default=[],
         help="arguments to command",
         metavar="arg",
-        nargs="*",
+        nargs=argparse.REMAINDER,
     )
     parser.add_argument(
         "-v",
