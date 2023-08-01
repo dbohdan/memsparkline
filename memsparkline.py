@@ -37,7 +37,7 @@ VERSION = "0.3.1"
 def main() -> None:
     args = cli(sys.argv)
 
-    with open_output(args.output_path, sys.stderr) as output:  # type: IO[str]
+    with open_output(args.output_path, sys.stderr) as output:
         try:
             start_dt = datetime.now()
             process = psutil.Popen([args.command] + args.arguments)
