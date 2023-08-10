@@ -31,7 +31,7 @@ import psutil
 
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 
 def main() -> None:
@@ -259,7 +259,7 @@ def track(
                 )
 
             time.sleep(wait / 1000)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, psutil.NoSuchProcess):
         pass
 
     return (maximum, history)
