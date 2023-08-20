@@ -22,10 +22,10 @@
 
 import argparse
 import contextlib
-from datetime import datetime
 import sys
 import time
-from typing import Iterator, IO, List, Tuple
+from datetime import datetime
+from typing import IO, Iterator, List, Tuple
 
 import psutil
 
