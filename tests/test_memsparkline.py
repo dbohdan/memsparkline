@@ -147,7 +147,7 @@ class TestMemsparklinePOSIX(unittest.TestCase):
             output_path.unlink()
 
         for _ in range(2):
-            run("-q", "-o", str(output_path), "true")
+            run("-q", "-o", str(output_path), "sleep", "1")
 
         text = output_path.read_text()
         self.assertEqual(len(text.split("\n")), 7)
