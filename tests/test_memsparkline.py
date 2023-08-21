@@ -26,7 +26,7 @@ import shlex
 import subprocess
 import sys
 import unittest
-
+from pathlib import Path
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
@@ -140,6 +140,17 @@ class TestMemsparklinePOSIX(unittest.TestCase):
             "\n",
             run("--", *COMMAND, "--", "ls", "-l", return_stdout=True),
         )
+
+    def test_output(self) -> None:
+        output_path = Path(TEST_PATH, "output.log")
+        if output_path.exists():
+            output_path.unlink()
+
+        for _ in range(2):
+            run("-q", "-o", str(output_path), "true")
+
+        text = output_path.read_text()
+        self.assertEqual(len(text.split("\n")), 7)
 
 
 @unittest.skipUnless(os.name == "nt", "requires Windows")

@@ -31,7 +31,7 @@ import psutil
 
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
-VERSION = "0.3.2"
+VERSION = "0.4.0"
 
 
 def main() -> None:
@@ -179,7 +179,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         "--output",
         default="-",
         dest="output_path",
-        help='output file ("-" for standard error)',
+        help='output file to append to ("-" for standard error)',
         metavar="path",
     )
     parser.add_argument(
@@ -217,7 +217,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
 def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
     handle = fallback
     if path != "-":
-        handle = open(path, "w", 1)
+        handle = open(path, "a", 1)
 
     try:
         yield handle

@@ -121,7 +121,7 @@ optional arguments:
   -n, --newlines        print new sparkline on new line instead of over
                         previous
   -o path, --output path
-                        output file ("-" for standard error)
+                        output file to append to ("-" for standard error)
   -q, --quiet           do not print sparklines, only final report
   -t fmt, --time-format fmt
                         format string for run time (default: %d:%02d:%04.1f)
