@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 # Copyright (c) 2020, 2022-2023 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,6 +20,7 @@
 
 import os
 import os.path
+import re
 import shlex
 import subprocess
 import sys
@@ -30,7 +29,7 @@ from pathlib import Path
 
 TEST_PATH = os.path.dirname(os.path.realpath(__file__))
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
-if COMMAND == []:
+if [] == COMMAND:
     COMMAND = [sys.executable, os.path.join(TEST_PATH, "..", "memsparkline.py")]
 
 
@@ -38,14 +37,13 @@ def run(
     *args: str,
     check: bool = True,
     return_stdout: bool = False,
-    return_stderr: bool = True
+    return_stderr: bool = True,
 ) -> str:
     completed = subprocess.run(
-        COMMAND + list(args),
+        COMMAND + list(args),  # noqa: S603
         check=check,
         stdin=None,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
     )
 
     output = ""
@@ -59,87 +57,60 @@ def run(
 
 class TestMemsparkline(unittest.TestCase):
     def test_usage(self) -> None:
-        self.assertRegex(
-            run(check=False),
-            r"^usage",
-        )
+        assert re.search("^usage", run(check=False))
 
     def test_version(self) -> None:
-        self.assertRegex(
-            run("-v", return_stdout=True),
-            r"\d+\.\d+\.\d+",
-        )
+        assert re.search("\\d+\\.\\d+\\.\\d+", run("-v", return_stdout=True))
 
 
 @unittest.skipUnless(os.name == "posix", "requires a POSIX OS")
 class TestMemsparklinePOSIX(unittest.TestCase):
     def test_basic(self) -> None:
-        self.assertRegex(
-            run("sleep", "1"),
-            r"(?s).*avg:.*max:",
-        )
+        assert re.search("(?s).*avg:.*max:", run("sleep", "1"))
 
     def test_length(self) -> None:
         stderr = run("-l", "10", "-w", "10", "sleep", "1")
 
-        self.assertRegex(
-            stderr,
-            r"(?m)\r[^ ]{10} \d+\.\d\n avg",
-        )
+        assert re.search("(?m)\\r[^ ]{10} \\d+\\.\\d\\n avg", stderr)
 
     def test_mem_format(self) -> None:
         stderr = run("-l", "10", "-w", "10", "-m", "%0.2f", "sleep", "1")
 
-        self.assertRegex(
-            stderr,
-            r"(?m)\r[^ ]{10} \d+\.\d{2}\n avg",
-        )
+        assert re.search("(?m)\\r[^ ]{10} \\d+\\.\\d{2}\\n avg", stderr)
 
     def test_time_format(self) -> None:
         stderr = run("-l", "10", "-t", "%d:%05d:%06.3f", "sleep", "1")
 
-        self.assertRegex(
-            stderr,
-            r"(?m)time: \d+\:\d{5}:\d{2}\.\d{3}\n",
-        )
+        assert re.search("(?m)time: \\d+\\:\\d{5}:\\d{2}\\.\\d{3}\\n", stderr)
 
     def test_wait_1(self) -> None:
         stderr = run("-w", "2000", "sleep", "1")
 
-        self.assertEqual(len(stderr.split("\n")), 5)
+        assert len(stderr.split("\n")) == 5
 
     def test_wait_2(self) -> None:
         stderr = run("-n", "-w", "100", "sleep", "1")
 
-        self.assertIn(len(stderr.split("\n")), range(10, 15))
+        assert len(stderr.split("\n")) in range(10, 15)
 
     def test_quiet(self) -> None:
         stderr = run("-q", "sleep", "1")
 
-        self.assertRegex(
-            stderr,
-            r"^ avg",
-        )
+        assert re.search("^ avg", stderr)
 
     def test_missing_binary(self) -> None:
         with self.assertRaises(subprocess.CalledProcessError) as err:
             run("no-such-binary-exists")
-            self.assertRegex(
-                err.output,  # type: ignore
+            assert re.search(
                 r"No such file or directory",
+                err.exception.output,
             )
 
     def test_double_dash(self) -> None:
-        self.assertIn(
-            "\n",
-            run("--", "ls", "-l", return_stdout=True),
-        )
+        assert "\n" in run("--", "ls", "-l", return_stdout=True)
 
     def test_two_double_dashes(self) -> None:
-        self.assertIn(
-            "\n",
-            run("--", *COMMAND, "--", "ls", "-l", return_stdout=True),
-        )
+        assert "\n" in run("--", *COMMAND, "--", "ls", "-l", return_stdout=True)
 
     def test_output(self) -> None:
         output_path = Path(TEST_PATH, "output.log")
@@ -150,21 +121,18 @@ class TestMemsparklinePOSIX(unittest.TestCase):
             run("-q", "-o", str(output_path), "sleep", "1")
 
         text = output_path.read_text()
-        self.assertEqual(len(text.split("\n")), 7)
+        assert len(text.split("\n")) == 7
 
 
 @unittest.skipUnless(os.name == "nt", "requires Windows")
 class TestMemsparklineWindows(unittest.TestCase):
     def test_cmd_basic(self) -> None:
-        self.assertRegex(
-            run("cmd.exe", "/c", "dir"),
-            r"(?s).*avg:.*max:",
-        )
+        assert re.search("(?s).*avg:.*max:", run("cmd.exe", "/c", "dir"))
 
     def test_cmd_pause(self) -> None:
         stderr = run("-w", "2000", "cmd", "/c", "timeout", "/t", "1")
 
-        self.assertEqual(len(stderr.split("\n")), 5)
+        assert len(stderr.split("\n")) == 5
 
 
 if __name__ == "__main__":

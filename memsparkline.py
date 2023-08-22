@@ -25,7 +25,7 @@ import contextlib
 import sys
 import time
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import IO, Iterator, List, Tuple
 
 import psutil
@@ -40,8 +40,8 @@ def main() -> None:
 
     with open_output(args.output_path, sys.stderr) as output:
         try:
-            start_dt = datetime.now()
-            process = psutil.Popen([args.command] + args.arguments)
+            start_dt = datetime.now(tz=timezone.utc)
+            process = psutil.Popen([args.command, *args.arguments])
             maximum, history = track(
                 process,
                 output,
@@ -62,7 +62,7 @@ def main() -> None:
                     history,
                     maximum,
                     start_dt,
-                    datetime.now(),
+                    datetime.now(tz=timezone.utc),
                     args.mem_format,
                     args.time_format,
                 )
@@ -72,14 +72,14 @@ def main() -> None:
                 with open(args.dump_path, "w") as hist_file:
                     for value in history:
                         print(value, file=hist_file)
-        except Exception as err:
+        except Exception as err:  # noqai: BLE001
             tb = sys.exc_info()[-1]
             frame = traceback.extract_tb(tb)[-1]
             line = frame.lineno
 
             print(
                 f"\nerror: {err}\n"
-                + f"(debug information: line {line}, exception {type(err).__name__})",
+                f"(debug information: line {line}, exception {type(err).__name__})",
                 file=output,
             )
             sys.exit(1)
@@ -115,7 +115,7 @@ def summarize(
 ) -> List[str]:
     summary = []
     summary.append(
-        (" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR)
+        (" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR),
     )
     summary.append((" max: " + mem_format) % (maximum / USAGE_DIVISOR))
 
@@ -214,16 +214,14 @@ def cli(argv: List[str]) -> argparse.Namespace:
         type=int,
     )
 
-    args = parser.parse_args(argv[1:])
-
-    return args
+    return parser.parse_args(argv[1:])
 
 
 @contextlib.contextmanager
 def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
     handle = fallback
     if path != "-":
-        handle = open(path, "a", 1)
+        handle = open(path, "a", 1)  # noqa: SIM115
 
     try:
         yield handle
@@ -235,6 +233,7 @@ def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
 def track(
     parent: psutil.Popen,
     output: IO[str],
+    *,
     newlines: bool = False,
     sparkline_length: int = 20,
     wait: int = 1000,
