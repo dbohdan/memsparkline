@@ -104,7 +104,10 @@ select = [
 ]
 
 [tool.ruff.per-file-ignores]
-"tests/*py" = ["PLR2004", "S101"]
+"tests/*.py" = [
+  "PLR2004", # magic-value-comparison
+  "S101",    # assert
+]
 
 [tool.ruff.pylint]
 max-args = 8
