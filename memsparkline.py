@@ -78,7 +78,8 @@ def main() -> None:
             line = frame.lineno
 
             print(
-                f"error on line {line}: {err}",
+                f"\nerror: {err}\n"
+                + f"(debug information: line {line}, exception {type(err).__name__})",
                 file=output,
             )
             sys.exit(1)
