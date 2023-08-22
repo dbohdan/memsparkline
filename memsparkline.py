@@ -24,6 +24,7 @@ import argparse
 import contextlib
 import sys
 import time
+import traceback
 from datetime import datetime
 from typing import IO, Iterator, List, Tuple
 
@@ -72,8 +73,12 @@ def main() -> None:
                     for value in history:
                         print(value, file=hist_file)
         except Exception as err:
+            tb = sys.exc_info()[-1]
+            frame = traceback.extract_tb(tb)[-1]
+            line = frame.lineno
+
             print(
-                "error: %s" % err,
+                f"error on line {line}: {err}",
                 file=output,
             )
             sys.exit(1)
