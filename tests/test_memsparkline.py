@@ -19,7 +19,6 @@
 # THE SOFTWARE.
 
 import os
-import os.path
 import re
 import shlex
 import subprocess
@@ -27,10 +26,10 @@ import sys
 import unittest
 from pathlib import Path
 
-TEST_PATH = os.path.dirname(os.path.realpath(__file__))
+TEST_PATH = Path(__file__).resolve().parent
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
 if [] == COMMAND:
-    COMMAND = [sys.executable, os.path.join(TEST_PATH, "..", "memsparkline.py")]
+    COMMAND = [sys.executable, Path(TEST_PATH, "..", "memsparkline.py")]
 
 
 def run(

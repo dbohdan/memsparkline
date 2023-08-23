@@ -47,7 +47,7 @@ memsparkline = 'memsparkline:main'
 select = [
   "A",     # flake8-builtins
   "AIR",   # Airflow
-  # "ANN",   # flake8-annotations
+  # "ANN", # flake8-annotations
   "ARG",   # flake8-unused-arguments
   "ASYNC", # flake8-async
   "B",     # flake8-bugbear
@@ -57,7 +57,7 @@ select = [
   "COM",   # flake8-commas
   "CPY",   # flake8-copyright
   "DJ",    # flake8-django
-  # "D",     # pydocstyle
+  # "D",   # pydocstyle
   "DTZ",   # flake8-datetimez
   "EM",    # flake8-errmsg
   "ERA",   # eradicate
@@ -82,7 +82,7 @@ select = [
   "PIE",   # flake8-pie
   "PL",    # Pylint
   "PT",    # flake8-pytest-style
-  # "PTH",   # flake8-use-pathlib
+  "PTH",   # flake8-use-pathlib
   "PYI",   # flake8-pyi
   "Q",     # flake8-quotes
   "RET",   # flake8-return

@@ -26,6 +26,7 @@ import sys
 import time
 import traceback
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import IO, Iterator, List, Tuple
 
 import psutil
@@ -69,7 +70,7 @@ def main() -> None:
                 print("\n".join(summary), file=output)
 
             if args.dump_path != "":
-                with open(args.dump_path, "w") as hist_file:
+                with Path(args.dump_path).open("w") as hist_file:
                     for value in history:
                         print(value, file=hist_file)
         except Exception as err:  # noqai: BLE001
@@ -221,7 +222,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
 def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
     handle = fallback
     if path != "-":
-        handle = open(path, "a", 1)  # noqa: SIM115
+        handle = Path(path).open("a", 1)
 
     try:
         yield handle
