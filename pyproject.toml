@@ -25,6 +25,11 @@ classifiers = [
   "Topic :: Utilities",
 ]
 
+include = [
+    { path = "tests/", format = "sdist" },
+    { path = "tox.ini", format = "sdist" },
+]
+
 [tool.poetry.dependencies]
 python = "^3.7"
 psutil = "^5.9.5"
