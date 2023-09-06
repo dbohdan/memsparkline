@@ -101,7 +101,7 @@ doas pkg_add py3-psutil
 ```none
 usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q]
                     [-t fmt] [-w ms]
-                    command [arg [arg ...]]
+                    command ...
 
 Track the RAM usage (resident set size) of a process and its descendants in
 real time.
@@ -110,21 +110,21 @@ positional arguments:
   command               command to run
   arg                   arguments to command
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
   -d path, --dump path  file to which to write full memory usage history when
                         finished
   -l n, --length n      sparkline length (default: 20)
   -m fmt, --mem-format fmt
-                        format string for memory amounts (default: %0.1f)
+                        format string for memory amounts (default: "%0.1f")
   -n, --newlines        print new sparkline on new line instead of over
                         previous
   -o path, --output path
                         output file to append to ("-" for standard error)
   -q, --quiet           do not print sparklines, only final report
   -t fmt, --time-format fmt
-                        format string for run time (default: %d:%02d:%04.1f)
+                        format string for run time (default: "%d:%02d:%04.1f")
   -w ms, --wait ms      how long to wait between taking samples (default:
                         1000)
 ```

@@ -170,7 +170,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         "--mem-format",
         default="%0.1f",
         dest="mem_format",
-        help="format string for memory amounts (default: %(default)s)",
+        help='format string for memory amounts (default: "%(default)s")',
         metavar="fmt",
         type=str,
     )
@@ -201,7 +201,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         "--time-format",
         default="%d:%02d:%04.1f",
         dest="time_format",
-        help="format string for run time (default: %(default)s)",
+        help='format string for run time (default: "%(default)s")',
         metavar="fmt",
         type=str,
     )
