@@ -31,9 +31,10 @@ from typing import IO, Iterator, List, Tuple
 
 import psutil
 
+__version__ = "0.4.0"
+
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
-VERSION = "0.4.0"
 
 
 def main() -> None:
@@ -146,7 +147,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
         "-v",
         "--version",
         action="version",
-        version=VERSION,
+        version=__version__,
     )
     parser.add_argument(
         "-d",
