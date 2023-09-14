@@ -78,10 +78,16 @@ def main() -> None:
             tb = sys.exc_info()[-1]
             frame = traceback.extract_tb(tb)[-1]
             line = frame.lineno
+            file_info = (
+                f"file {Path(frame.filename).name!r}, "
+                if "__file__" in globals() and frame.filename != __file__
+                else ""
+            )
 
             print(
                 f"\nerror: {err}\n"
-                f"(debug information: line {line}, exception {type(err).__name__})",
+                f"(debug info: {file_info}line {line}, "
+                f"exception {type(err).__name__!r})",
                 file=output,
             )
             sys.exit(1)
