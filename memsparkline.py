@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import annotations
+
 import argparse
 import contextlib
 import sys
@@ -27,7 +29,7 @@ import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import IO, Iterator, List, Tuple
+from typing import IO, Iterator
 
 import psutil
 
@@ -74,7 +76,7 @@ def main() -> None:
                 with Path(args.dump_path).open("w") as hist_file:
                     for value in history:
                         print(value, file=hist_file)
-        except Exception as err:  # noqai: BLE001
+        except Exception as err:  # noqa: BLE001
             tb = sys.exc_info()[-1]
             frame = traceback.extract_tb(tb)[-1]
             line = frame.lineno
@@ -98,7 +100,7 @@ def main() -> None:
 def hms_delta(
     start_dt: datetime,
     end_dt: datetime,
-) -> Tuple[int, int, float]:
+) -> tuple[int, int, float]:
     delta = end_dt - start_dt
     total_millis = (
         delta.days * 24 * 60 * 60 * 1000
@@ -114,13 +116,13 @@ def hms_delta(
 
 
 def summarize(
-    history: List[int],
+    history: list[int],
     maximum: int,
     start_dt: datetime,
     end_dt: datetime,
     mem_format: str,
     time_format: str,
-) -> List[str]:
+) -> list[str]:
     summary = []
     summary.append(
         (" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR),
@@ -132,7 +134,7 @@ def summarize(
     return summary
 
 
-def cli(argv: List[str]) -> argparse.Namespace:
+def cli(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Track the RAM usage (resident set size) of a process and "
         "its descendants in real time.",
@@ -229,7 +231,7 @@ def cli(argv: List[str]) -> argparse.Namespace:
 def open_output(path: str, fallback: IO[str]) -> Iterator[IO[str]]:
     handle = fallback
     if path != "-":
-        handle = Path(path).open("a", 1)
+        handle = Path(path).open("a", 1)  # noqa: SIM115
 
     try:
         yield handle
@@ -247,7 +249,7 @@ def track(
     wait: int = 1000,
     mem_format: str = "0.1f%",
     quiet: bool = False,
-) -> Tuple[int, List[int]]:
+) -> tuple[int, list[int]]:
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
     history = []
@@ -278,7 +280,7 @@ def track(
     return (maximum, history)
 
 
-def sparkline(minimum: float, maximum: float, data: List[float]) -> str:
+def sparkline(minimum: float, maximum: float, data: list[float]) -> str:
     tick_max = len(SPARKLINE_TICKS) - 1
 
     if minimum == maximum:
