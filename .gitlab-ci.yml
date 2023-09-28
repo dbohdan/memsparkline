@@ -1,7 +1,12 @@
 image: python:3.7
 
 before_script:
-  - pip install poetry tox
+  - pip install poethepoet poetry tox
+
+lint_and_typecheck:
+  script:
+    - poetry install
+    - poe check
 
 test:
   script:
