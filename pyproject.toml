@@ -51,13 +51,26 @@ memsparkline = 'memsparkline:main'
 [tool.poe.env]
 "PYTHON_SOURCES" = "memsparkline.py tests/test_memsparkline.py"
 
-[tool.poe.tasks]
-check.sequence = ["format", "lint", "type"]
-check.ignore_fail = "return_non_zero"
-format = "black ${PYTHON_SOURCES}"
-lint = "ruff check ${PYTHON_SOURCES}"
-test = "pytest"
-type = "pyright ${PYTHON_SOURCES}"
+[tool.poe.tasks.check]
+sequence = ["format", "lint", "type"]
+help = "Run the formatter, then all static checks"
+ignore_fail = "return_non_zero"
+
+[tool.poe.tasks.format]
+cmd = "black ${PYTHON_SOURCES}"
+help = "Run Black"
+
+[tool.poe.tasks.lint]
+cmd = "ruff check ${PYTHON_SOURCES}"
+help = "Run Ruff"
+
+[tool.poe.tasks.test]
+cmd = "pytest"
+help = "Run Pytest (not through tox)"
+
+[tool.poe.tasks.type]
+cmd = "pyright ${PYTHON_SOURCES}"
+help = "Run Pyright"
 
 [tool.pyright]
 pythonVersion = "3.7"
