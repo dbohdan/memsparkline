@@ -26,8 +26,8 @@ classifiers = [
 ]
 
 include = [
-    { path = "tests/", format = "sdist" },
-    { path = "tox.ini", format = "sdist" },
+  { path = "tests/", format = "sdist" },
+  { path = "tox.ini", format = "sdist" },
 ]
 
 [tool.poetry.dependencies]
