@@ -48,6 +48,17 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 memsparkline = 'memsparkline:main'
 
+[tool.poe.env]
+"PYTHON_SOURCES" = "memsparkline.py tests/test_memsparkline.py"
+
+[tool.poe.tasks]
+check.sequence = ["format", "lint", "type"]
+check.ignore_fail = "return_non_zero"
+format = "black ${PYTHON_SOURCES}"
+lint = "ruff check ${PYTHON_SOURCES}"
+test = "pytest"
+type = "pyright ${PYTHON_SOURCES}"
+
 [tool.pyright]
 pythonVersion = "3.7"
 
