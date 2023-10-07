@@ -37,9 +37,9 @@ psutil = "^5.9.5"
 [tool.poetry.group.dev.dependencies]
 types-psutil = "^5.9.5.15"
 black = "^23.3.0"
-ruff = "^0.0.291"
+ruff = "0.0.292"
 pytest = "^7.4.0"
-pyright = "^1.1.318"
+pyright = "1.1.329"
 
 [build-system]
 requires = ["poetry-core>=1.0"]
