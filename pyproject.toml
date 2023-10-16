@@ -64,6 +64,10 @@ help = "Run Black"
 cmd = "ruff check ${PYTHON_SOURCES}"
 help = "Run Ruff"
 
+[tool.poe.tasks.memsparkline]
+cmd = "python -m memsparkline"
+help = "Run memsparkline"
+
 [tool.poe.tasks.test]
 cmd = "pytest"
 help = "Run Pytest (not through tox)"
