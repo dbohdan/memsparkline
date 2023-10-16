@@ -29,7 +29,7 @@ from pathlib import Path
 TEST_PATH = Path(__file__).resolve().parent
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
 if [] == COMMAND:
-    COMMAND = [sys.executable, Path(TEST_PATH) / "../src/memsparkline/main.py"]
+    COMMAND = [sys.executable, "-m", "memsparkline"]
 
 
 def run(
