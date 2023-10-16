@@ -141,8 +141,8 @@ memusg and spark inspired this project.
 
 ### Tracking  memory usage
 
-* [DragonFly BSD](https://man.dragonflybsd.org/?command=time&section=ANY), [FreeBSD](https://man.freebsd.org/cgi/man.cgi?query=time&format=html), [NetBSD](https://man.netbsd.org/time.1), [OpenBSD](https://man.openbsd.org/time), and [macOS](https://ss64.com/osx/time.html) time(1) `-l` flag.
-* [GNU time(1)](https://linux.die.net/man/1/time) `-v` flag.
+* [DragonFly BSD](https://man.dragonflybsd.org/?command=time&section=ANY), [FreeBSD](https://man.freebsd.org/cgi/man.cgi?query=time&format=html), [NetBSD](https://man.netbsd.org/time.1), [OpenBSD](https://man.openbsd.org/time), and [macOS](https://ss64.com/osx/time.html) time(1) flag `-l`.
+* [GNU time(1)](https://linux.die.net/man/1/time) flag `-v`.
 * [memusg](http://gist.github.com/526585) — a Bash script for FreeBSD, Linux, and macOS that measures the peak resident set size of a process.
 
 ### Sparklines
