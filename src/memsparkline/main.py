@@ -156,7 +156,7 @@ def cli(argv: list[str]) -> argparse.Namespace:
         "arguments",
         default=[],
         help="arguments to command",
-        metavar="arg",
+        metavar="args",
         nargs=argparse.REMAINDER,
     )
     parser.add_argument(
