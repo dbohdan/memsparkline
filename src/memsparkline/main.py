@@ -33,7 +33,7 @@ from typing import IO, Iterator
 
 import psutil
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
@@ -135,9 +135,17 @@ def summarize(
 
 
 def cli(argv: list[str]) -> argparse.Namespace:
+    argv0 = Path(sys.argv[0])
+    prog = (
+        f"{Path(sys.executable).name} -m {argv0.parent.name}"
+        if argv0.name == "__main__.py"
+        else argv0.name
+    )
+
     parser = argparse.ArgumentParser(
         description="Track the RAM usage (resident set size) of a process and "
         "its descendants in real time.",
+        prog=prog,
     )
     parser.add_argument(
         "command",
