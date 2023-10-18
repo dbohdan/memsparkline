@@ -36,7 +36,6 @@ psutil = "^5.9.5"
 
 [tool.poetry.group.dev.dependencies]
 types-psutil = "^5.9.5.15"
-black = "^23.3.0"
 ruff = "0.1.0"
 pytest = "^7.4.0"
 pyright = "1.1.329"
@@ -57,8 +56,8 @@ help = "Run the formatter, then all static checks"
 ignore_fail = "return_non_zero"
 
 [tool.poe.tasks.format]
-cmd = "black ${PYTHON_SOURCES}"
-help = "Run Black"
+cmd = "ruff format ${PYTHON_SOURCES}"
+help = "Run the Ruff formatter"
 
 [tool.poe.tasks.lint]
 cmd = "ruff check ${PYTHON_SOURCES}"
