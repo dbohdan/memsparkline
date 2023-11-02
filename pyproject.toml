@@ -38,7 +38,7 @@ psutil = "^5.9.5"
 
 [tool.poetry.group.dev.dependencies]
 types-psutil = "^5.9.5.15"
-ruff = "0.1.0"
+ruff = "0.1.11"
 pytest = "^7.4.0"
 pyright = "1.1.329"
 
@@ -138,6 +138,10 @@ select = [
   "UP",    # pyupgrade
   "W",     # pycodestyle
   "YTT",   # flake8-2020
+]
+ignore = [
+  "COM812", # missing-trailing-comma
+  "ISC001", # single-line-implicit-string-concatenation
 ]
 src = ["src", "tests"]
 target-version = "py37"
