@@ -57,7 +57,7 @@ def main() -> None:
             )
             process.wait()
 
-            if history == []:
+            if not history:
                 print("no data collected", file=output)
             else:
                 if not args.newlines and not args.quiet:
@@ -123,15 +123,11 @@ def summarize(
     mem_format: str,
     time_format: str,
 ) -> list[str]:
-    summary = []
-    summary.append(
+    return [
         (" avg: " + mem_format) % (sum(history) / len(history) / USAGE_DIVISOR),
-    )
-    summary.append((" max: " + mem_format) % (maximum / USAGE_DIVISOR))
-
-    summary.append("time: " + time_format % hms_delta(start_dt, end_dt))
-
-    return summary
+        (" max: " + mem_format) % (maximum / USAGE_DIVISOR),
+        "time: " + time_format % hms_delta(start_dt, end_dt),
+    ]
 
 
 def cli(argv: list[str]) -> argparse.Namespace:
