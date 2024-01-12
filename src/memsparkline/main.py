@@ -29,7 +29,7 @@ import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import IO, Iterator
+from typing import IO, Iterator, Sequence
 
 import psutil
 
@@ -116,7 +116,7 @@ def hms_delta(
 
 
 def summarize(
-    history: list[int],
+    history: Sequence[int],
     maximum: int,
     start_dt: datetime,
     end_dt: datetime,
@@ -130,7 +130,7 @@ def summarize(
     ]
 
 
-def cli(argv: list[str]) -> argparse.Namespace:
+def cli(argv: Sequence[str]) -> argparse.Namespace:
     argv0 = Path(sys.argv[0])
     prog = (
         f"{Path(sys.executable).name} -m {argv0.parent.name}"
@@ -284,7 +284,7 @@ def track(
     return (maximum, history)
 
 
-def sparkline(minimum: float, maximum: float, data: list[float]) -> str:
+def sparkline(minimum: float, maximum: float, data: Sequence[float]) -> str:
     tick_max = len(SPARKLINE_TICKS) - 1
 
     if minimum == maximum:
