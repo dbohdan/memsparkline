@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2020, 2022-2023 D. Bohdan
+# Copyright (c) 2020, 2022-2024 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -166,7 +166,7 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         "--dump",
         default="",
         dest="dump_path",
-        help="file to which to write full memory usage history when finished",
+        help="file in which to write full memory usage history when finished",
         metavar="path",
     )
     parser.add_argument(

@@ -113,7 +113,7 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
-  -d path, --dump path  file to which to write full memory usage history when
+  -d path, --dump path  file in which to write full memory usage history when
                         finished
   -l n, --length n      sparkline length (default: 20)
   -m fmt, --mem-format fmt
