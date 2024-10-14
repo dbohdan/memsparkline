@@ -5,7 +5,7 @@ description = "Track the RAM usage (resident set size) of a process and its desc
 authors = ["D. Bohdan <dbohdan@dbohdan.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://gitlab.com/dbohdan/memsparkline"
+repository = "https://github.com/dbohdan/memsparkline"
 keywords = [
   "memory",
   "monitoring",

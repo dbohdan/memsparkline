@@ -72,7 +72,7 @@ pip install --user memsparkline
    For example:
 
 ```sh
-git clone https://gitlab.com/dbohdan/memsparkline
+git clone https://github.com/dbohdan/memsparkline
 cd memsparkline
 sudo install src/memsparkline/main.py /usr/local/bin/memsparkline
 ```
