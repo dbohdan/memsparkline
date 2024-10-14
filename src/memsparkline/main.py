@@ -38,9 +38,9 @@ if TYPE_CHECKING:
 
 __version__ = "0.6.0"
 
-SAMPLE_WAIT = 10
+SAMPLE_INTERVAL = 25
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
-USAGE_DIVISOR = 1 << 20
+USAGE_DIVISOR = 1 << 20  # Report memory usage in binary megabytes.
 
 
 def main() -> None:
@@ -237,11 +237,9 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
 
     args = parser.parse_args(argv[1:])
 
-    if args.wait % SAMPLE_WAIT != 0:
-        parser.error(
-            "wait time must be a multiple of the internal sample interval "
-            f"{SAMPLE_WAIT} ms"
-        )
+    wait_factor = SAMPLE_INTERVAL * 2
+    if args.wait % wait_factor != 0:
+        parser.error(f"wait time must be a multiple of {wait_factor} ms")
 
     return args
 
@@ -272,25 +270,30 @@ def track(
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
     history = []
-    last_sample_time = 0  # Time in nanoseconds since the epoch.
+    # The time when the last record was added to history
+    # in nanoseconds since the epoch.
+    last_record_time = 0
+    # The time when the sample was taken in nanoseconds since the epoch.
+    last_sample_time = 0
+    # The maximum total resident set size overall.
     maximum = 0
-    sample_maximum = 0
+    # The maximum total resident set size since the last record.
+    record_maximum = 0
 
-    def add_sample() -> None:
-        nonlocal last_sample_time
+    def add_record(current_time: int) -> None:
+        nonlocal last_record_time
 
-        current_time = time.time_ns()
-        if current_time - last_sample_time < wait * 1_000_000:
+        if current_time - last_record_time < wait * 1_000_000:
             return
 
-        history.append(sample_maximum)
-        last_sample_time = current_time
+        history.append(record_maximum)
+        last_record_time = current_time
 
         if not quiet:
             latest = history[-sparkline_length:]
             line = sparkline(0, maximum, latest)
             print(
-                fmt % (line, sample_maximum / USAGE_DIVISOR),
+                fmt % (line, record_maximum / USAGE_DIVISOR),
                 end="",
                 file=output,
             )
@@ -300,14 +303,18 @@ def track(
             tree = parent.children(recursive=True)
             tree.append(parent)
 
-            current_total = sum(x.memory_info().rss for x in tree)
-            sample_maximum = max(current_total, sample_maximum)
-            maximum = max(sample_maximum, maximum)
+            current_total = sum([x.memory_info().rss for x in tree])
+            record_maximum = max(current_total, record_maximum)
+            maximum = max(record_maximum, maximum)
 
-            add_sample()
-            time.sleep(SAMPLE_WAIT / 1000)
+            current_time = time.time_ns()
+            add_record(current_time)
 
-        add_sample()
+            delta = (current_time - last_sample_time) // 1_000_000
+            last_sample_time = current_time
+            time.sleep(max(0, (SAMPLE_INTERVAL - delta) / 1000))
+
+        add_record(time.time_ns())
     except (KeyboardInterrupt, psutil.NoSuchProcess):
         pass
 

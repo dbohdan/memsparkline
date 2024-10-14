@@ -73,14 +73,14 @@ class TestMemsparkline(unittest.TestCase):
         assert re.search("(?s).*avg:.*max:", run(*sleep_command()))
 
     def test_length(self) -> None:
-        stderr = run("-l", "10", "-w", "10", *sleep_command())
+        stderr = run("-l", "5", "-w", "50", *sleep_command())
 
-        assert re.search("(?m)\\r[^ ]{10} \\d+\\.\\d\\n avg", stderr)
+        assert re.search("(?m)\\r[^ ]{5} \\d+\\.\\d\\n avg", stderr)
 
     def test_mem_format(self) -> None:
-        stderr = run("-l", "10", "-w", "10", "-m", "%0.2f", *sleep_command())
+        stderr = run("-l", "5", "-w", "50", "-m", "%0.2f", *sleep_command())
 
-        assert re.search("(?m)\\r[^ ]{10} \\d+\\.\\d{2}\\n avg", stderr)
+        assert re.search("(?m)\\r[^ ]{5} \\d+\\.\\d{2}\\n avg", stderr)
 
     def test_time_format(self) -> None:
         stderr = run("-l", "10", "-t", "%d:%05d:%06.3f", *sleep_command())

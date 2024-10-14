@@ -42,8 +42,8 @@ It has been tested on Debian, Ubuntu, FreeBSD, NetBSD, and OpenBSD.
 It seems to work on Windows, although Windows support has received little testing.
 The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts but correctly on Windows 10 with the font NSimSun.
 
-memsparkline measures run time and samples memory usage with a fixed granularity of 10 ms.
-The recording interval (`-w`/`--wait` argument) must be a multiple of the sample interval.
+memsparkline tries to measure run time and to sample memory usage close to every 25 ms.
+The interval between record creation (`-w`/`--wait` argument) must be a multiple of 50 ms.
 
 
 ## Installation
