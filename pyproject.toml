@@ -38,9 +38,9 @@ psutil = "^5.9.5"
 
 [tool.poetry.group.dev.dependencies]
 types-psutil = "^5.9.5.15"
-ruff = "0.2.1"
-pytest = "^7.4.0"
-pyright = "1.1.329"
+ruff = "0.6.9"
+pytest = "^8.3.3"
+pyright = "1.1.384"
 pytest-cov = "^4.1.0"
 
 [build-system]
