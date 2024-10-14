@@ -26,10 +26,12 @@ import sys
 import unittest
 from pathlib import Path
 
+PYTHON = sys.executable
 TEST_PATH = Path(__file__).resolve().parent
+
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
 if COMMAND == []:
-    COMMAND = [sys.executable, "-m", "memsparkline"]
+    COMMAND = [PYTHON, "-m", "memsparkline"]
 
 
 def run(
@@ -128,8 +130,8 @@ class TestMemsparklineWindows(unittest.TestCase):
     def test_cmd_basic(self) -> None:
         assert re.search("(?s).*avg:.*max:", run("cmd.exe", "/c", "dir"))
 
-    def test_cmd_pause(self) -> None:
-        stderr = run("-w", "2000", "cmd", "/c", "timeout", "/t", "1")
+    def test_python_sleep(self) -> None:
+        stderr = run("-w", "2000", PYTHON, "-c", "import time; time.sleep(1)")
 
         assert len(stderr.split("\n")) == 5
 
