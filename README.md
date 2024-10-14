@@ -66,15 +66,14 @@ pip install --user memsparkline
 
 ### Manual installation
 
-1. Install the dependencies from package repositories for your OS.
+1. Install the dependencies from the package repositories for your OS.
    You will find instructions for some operating systems below.
 2. Download `src/memsparkline/main.py` and copy it to a directory in `PATH` as `memsparkline`.
    For example:
 
 ```sh
 git clone https://github.com/dbohdan/memsparkline
-cd memsparkline
-sudo install src/memsparkline/main.py /usr/local/bin/memsparkline
+sudo install memsparkline/src/memsparkline/main.py /usr/local/bin/memsparkline
 ```
 
 #### Dependencies
