@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import annotations
+
 import os
 import re
 import shlex
@@ -56,6 +58,10 @@ def run(
     return output
 
 
+def sleep_command(duration: float = 0.5) -> list[str]:
+    return [PYTHON, "-c", f"import time; time.sleep({duration})"]
+
+
 class TestMemsparkline(unittest.TestCase):
     def test_usage(self) -> None:
         assert re.search("^usage", run(check=False))
@@ -63,39 +69,36 @@ class TestMemsparkline(unittest.TestCase):
     def test_version(self) -> None:
         assert re.search("\\d+\\.\\d+\\.\\d+", run("-v", return_stdout=True))
 
-
-@unittest.skipUnless(os.name == "posix", "requires a POSIX OS")
-class TestMemsparklinePOSIX(unittest.TestCase):
     def test_basic(self) -> None:
-        assert re.search("(?s).*avg:.*max:", run("sleep", "1"))
+        assert re.search("(?s).*avg:.*max:", run(*sleep_command()))
 
     def test_length(self) -> None:
-        stderr = run("-l", "10", "-w", "10", "sleep", "1")
+        stderr = run("-l", "10", "-w", "10", *sleep_command())
 
         assert re.search("(?m)\\r[^ ]{10} \\d+\\.\\d\\n avg", stderr)
 
     def test_mem_format(self) -> None:
-        stderr = run("-l", "10", "-w", "10", "-m", "%0.2f", "sleep", "1")
+        stderr = run("-l", "10", "-w", "10", "-m", "%0.2f", *sleep_command())
 
         assert re.search("(?m)\\r[^ ]{10} \\d+\\.\\d{2}\\n avg", stderr)
 
     def test_time_format(self) -> None:
-        stderr = run("-l", "10", "-t", "%d:%05d:%06.3f", "sleep", "1")
+        stderr = run("-l", "10", "-t", "%d:%05d:%06.3f", *sleep_command())
 
         assert re.search("(?m)time: \\d+\\:\\d{5}:\\d{2}\\.\\d{3}\\n", stderr)
 
     def test_wait_1(self) -> None:
-        stderr = run("-w", "2000", "sleep", "1")
+        stderr = run("-w", "2000", *sleep_command())
 
         assert len(stderr.split("\n")) == 5
 
     def test_wait_2(self) -> None:
-        stderr = run("-n", "-w", "100", "sleep", "1")
+        stderr = run("-n", "-w", "50", *sleep_command())
 
         assert len(stderr.split("\n")) in range(10, 15)
 
     def test_quiet(self) -> None:
-        stderr = run("-q", "sleep", "1")
+        stderr = run("-q", *sleep_command())
 
         assert re.search("^ avg", stderr)
 
@@ -113,27 +116,28 @@ class TestMemsparklinePOSIX(unittest.TestCase):
     def test_two_double_dashes(self) -> None:
         assert "\n" in run("--", *COMMAND, "--", "ls", "-l", return_stdout=True)
 
+    def test_dump(self) -> None:
+        dump_path = Path(TEST_PATH, "dump.log")
+        if dump_path.exists():
+            dump_path.unlink()
+
+        run("-q", "-w", "100", "-d", str(dump_path), *sleep_command())
+
+        lines = dump_path.read_text().splitlines()
+
+        assert len(lines) in {5, 6}
+        assert all(re.match(r"\d+", line) for line in lines)
+
     def test_output(self) -> None:
         output_path = Path(TEST_PATH, "output.log")
         if output_path.exists():
             output_path.unlink()
 
         for _ in range(2):
-            run("-q", "-o", str(output_path), "sleep", "1")
+            run("-q", "-o", str(output_path), *sleep_command())
 
         text = output_path.read_text()
         assert len(text.split("\n")) == 7
-
-
-@unittest.skipUnless(os.name == "nt", "requires Windows")
-class TestMemsparklineWindows(unittest.TestCase):
-    def test_cmd_basic(self) -> None:
-        assert re.search("(?s).*avg:.*max:", run("cmd.exe", "/c", "dir"))
-
-    def test_python_sleep(self) -> None:
-        stderr = run("-w", "2000", PYTHON, "-c", "import time; time.sleep(1)")
-
-        assert len(stderr.split("\n")) == 5
 
 
 if __name__ == "__main__":
