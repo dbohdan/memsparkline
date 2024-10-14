@@ -33,7 +33,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 psutil = "^5.9.5"
 
 [tool.poetry.group.dev.dependencies]
@@ -79,11 +79,11 @@ cmd = "pyright ${PYTHON_SOURCES}"
 help = "Run Pyright"
 
 [tool.pyright]
-pythonVersion = "3.7"
+pythonVersion = "3.8"
 
 [tool.ruff]
 src = ["src", "tests"]
-target-version = "py37"
+target-version = "py38"
 
 [tool.ruff.lint]
 select = [
