@@ -1,0 +1,20 @@
+name: lint-and-type
+on: [push, pull_request]
+jobs:
+  lint-and-type:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install poethepoet poetry
+          poetry install
+      - name: Format
+        run: poe format
+      - name: Check spelling
+        run: poe spell
+      - name: Lint
+        run: poe lint
+      - name: Typecheck
+        run: poe type
