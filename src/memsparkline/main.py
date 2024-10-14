@@ -29,12 +29,16 @@ import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import IO, Iterator, Sequence
+from typing import IO, TYPE_CHECKING
 
 import psutil
 
-__version__ = "0.5.1"
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
 
+__version__ = "0.6.0"
+
+SAMPLE_WAIT = 10
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20
 
@@ -61,7 +65,7 @@ def main() -> None:
                 print("no data collected", file=output)
             else:
                 if not args.newlines and not args.quiet:
-                    print("", file=output)
+                    print(file=output)
                 summary = summarize(
                     history,
                     maximum,
@@ -223,12 +227,23 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         "--wait",
         default=1000,
         dest="wait",
-        help="how long to wait between taking samples (default: %(default)d)",
+        help=(
+            "how long to wait "
+            "between making memory usage records (default: %(default)d)"
+        ),
         metavar="ms",
         type=int,
     )
 
-    return parser.parse_args(argv[1:])
+    args = parser.parse_args(argv[1:])
+
+    if args.wait % SAMPLE_WAIT != 0:
+        parser.error(
+            "wait time must be a multiple of the internal sample interval "
+            f"{SAMPLE_WAIT} ms"
+        )
+
+    return args
 
 
 @contextlib.contextmanager
@@ -257,27 +272,42 @@ def track(
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
     history = []
+    last_sample_time = 0  # Time in nanoseconds since the epoch.
     maximum = 0
+    sample_maximum = 0
+
+    def add_sample() -> None:
+        nonlocal last_sample_time
+
+        current_time = time.time_ns()
+        if current_time - last_sample_time < wait * 1_000_000:
+            return
+
+        history.append(sample_maximum)
+        last_sample_time = current_time
+
+        if not quiet:
+            latest = history[-sparkline_length:]
+            line = sparkline(0, maximum, latest)
+            print(
+                fmt % (line, sample_maximum / USAGE_DIVISOR),
+                end="",
+                file=output,
+            )
 
     try:
         while parent.is_running() and parent.status() != psutil.STATUS_ZOMBIE:
             tree = parent.children(recursive=True)
             tree.append(parent)
 
-            total = sum(x.memory_info().rss for x in tree)
-            maximum = max(maximum, total)
-            history.append(total)
+            current_total = sum(x.memory_info().rss for x in tree)
+            sample_maximum = max(current_total, sample_maximum)
+            maximum = max(sample_maximum, maximum)
 
-            if not quiet:
-                latest = history[-sparkline_length:]
-                line = sparkline(0, maximum, latest)
-                print(
-                    fmt % (line, total / USAGE_DIVISOR),
-                    end="",
-                    file=output,
-                )
+            add_sample()
+            time.sleep(SAMPLE_WAIT / 1000)
 
-            time.sleep(wait / 1000)
+        add_sample()
     except (KeyboardInterrupt, psutil.NoSuchProcess):
         pass
 
@@ -288,7 +318,7 @@ def sparkline(minimum: float, maximum: float, data: Sequence[float]) -> str:
     tick_max = len(SPARKLINE_TICKS) - 1
 
     if minimum == maximum:
-        return SPARKLINE_TICKS[tick_max // 2] * len(data)
+        return SPARKLINE_TICKS[0]
 
     return "".join(
         SPARKLINE_TICKS[int(tick_max * (x - minimum) / (maximum - minimum))]

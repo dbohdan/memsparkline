@@ -154,6 +154,7 @@ ignore = [
   "PLR2004", # magic-value-comparison
   "PT027",   # pytest-unittest-raises-assertion
   "S101",    # assert
+  "S603",    # subprocess-without-shell-equals-true
 ]
 
 [tool.ruff.lint.pylint]

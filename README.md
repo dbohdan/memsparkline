@@ -1,6 +1,7 @@
 # memsparkline
 
-Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline). See the average and the maximum usage after the process exits, as well as the run time.
+Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_set_size)) of a process, its children, its children's children, etc. in real time with a Unicode text [sparkline](https://en.wikipedia.org/wiki/Sparkline).
+See the average and the maximum usage after the process exits, as well as the run time.
 
 
 
@@ -35,14 +36,19 @@ time: 0:00:10.1
 
 ## Compatibility and limitations
 
-memsparkline works on POSIX systems supported by [psutil](https://github.com/giampaolo/psutil). It has been tested on Debian, Ubuntu, FreeBSD, NetBSD, and OpenBSD. It seems to work on Windows, but Windows support has received minimal testing. The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts but correctly on Windows 10 with the font NSimSun.
+memsparkline works on POSIX systems supported by [psutil](https://github.com/giampaolo/psutil).
+It has been tested on Debian, Ubuntu, FreeBSD, NetBSD, and OpenBSD.
 
-memsparkline measures run time less precisely than time(1). The granularity with which it measures run time depends on the `--wait` option.
+It seems to work on Windows, although Windows support has received little testing.
+The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts but correctly on Windows 10 with the font NSimSun.
+
+memsparkline measures run time and samples memory usage with a fixed granularity of 10 ms.
+The recording interval (`-w`/`--wait` argument) must be a multiple of the sample interval.
 
 
 ## Installation
 
-memsparkline requires Python 3.7 or later.
+memsparkline requires Python 3.8 or later.
 
 ### Installing from PyPI
 
@@ -60,8 +66,10 @@ pip install --user memsparkline
 
 ### Manual installation
 
-1. Install the dependencies from package repositories for your OS. You will find instructions for some operating systems below.
-2. Download `src/memsparkline/main.py` and copy it to a directory in `PATH` as `memsparkline`. For example,
+1. Install the dependencies from package repositories for your OS.
+   You will find instructions for some operating systems below.
+2. Download `src/memsparkline/main.py` and copy it to a directory in `PATH` as `memsparkline`.
+   For example:
 
 ```sh
 git clone https://gitlab.com/dbohdan/memsparkline
@@ -108,7 +116,7 @@ real time.
 
 positional arguments:
   command               command to run
-  arg                   arguments to command
+  args                  arguments to command
 
 options:
   -h, --help            show this help message and exit
@@ -125,8 +133,8 @@ options:
   -q, --quiet           do not print sparklines, only final report
   -t fmt, --time-format fmt
                         format string for run time (default: "%d:%02d:%04.1f")
-  -w ms, --wait ms      how long to wait between taking samples (default:
-                        1000)
+  -w ms, --wait ms      how long to wait between making memory usage records
+                        (default: 1000)
 ```
 
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2022-2023 D. Bohdan
+# Copyright (c) 2020, 2022-2024 D. Bohdan
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ from pathlib import Path
 
 TEST_PATH = Path(__file__).resolve().parent
 COMMAND = shlex.split(os.environ.get("MEMSPARKLINE_COMMAND", ""))
-if [] == COMMAND:
+if COMMAND == []:
     COMMAND = [sys.executable, "-m", "memsparkline"]
 
 
@@ -39,7 +39,7 @@ def run(
     return_stderr: bool = True,
 ) -> str:
     completed = subprocess.run(
-        COMMAND + list(args),  # noqa: S603
+        COMMAND + list(args),
         check=check,
         stdin=None,
         capture_output=True,
