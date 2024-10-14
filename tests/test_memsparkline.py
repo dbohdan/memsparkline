@@ -126,7 +126,7 @@ class TestMemsparkline(unittest.TestCase):
         lines = dump_path.read_text().splitlines()
 
         assert len(lines) in {5, 6}
-        assert all(re.match(r"\d+", line) for line in lines)
+        assert all(re.match(r"\d+ \d+", line) for line in lines)
 
     def test_output(self) -> None:
         output_path = Path(TEST_PATH, "output.log")

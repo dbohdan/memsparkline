@@ -50,7 +50,7 @@ def main() -> None:
         try:
             start_dt = datetime.now(tz=timezone.utc)
             process = psutil.Popen([args.command, *args.arguments])
-            maximum, history = track(
+            maximum, history, timestamps = track(
                 process,
                 output,
                 newlines=args.newlines,
@@ -77,9 +77,9 @@ def main() -> None:
                 print("\n".join(summary), file=output)
 
             if args.dump_path != "":
-                with Path(args.dump_path).open("w") as hist_file:
-                    for value in history:
-                        print(value, file=hist_file)
+                with Path(args.dump_path).open("w") as dump_file:
+                    for value, timestamp in zip(history, timestamps):
+                        print(timestamp // 1_000_000, value, file=dump_file)
         except Exception as err:  # noqa: BLE001
             tb = sys.exc_info()[-1]
             frame = traceback.extract_tb(tb)[-1]
@@ -266,7 +266,7 @@ def track(
     wait: int = 1000,
     mem_format: str = "0.1f%",
     quiet: bool = False,
-) -> tuple[int, list[int]]:
+) -> tuple[int, list[int], list[int]]:
     core_fmt = "%s " + mem_format
     fmt = core_fmt + "\n" if newlines else "\r" + core_fmt
     history = []
@@ -279,6 +279,7 @@ def track(
     maximum = 0
     # The maximum total resident set size since the last record.
     record_maximum = 0
+    timestamps = []
 
     def add_record(current_time: int) -> None:
         nonlocal last_record_time
@@ -287,6 +288,7 @@ def track(
             return
 
         history.append(record_maximum)
+        timestamps.append(current_time)
         last_record_time = current_time
 
         if not quiet:
@@ -318,7 +320,7 @@ def track(
     except (KeyboardInterrupt, psutil.NoSuchProcess):
         pass
 
-    return (maximum, history)
+    return (maximum, history, timestamps)
 
 
 def sparkline(minimum: float, maximum: float, data: Sequence[float]) -> str:
