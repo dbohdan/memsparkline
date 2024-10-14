@@ -42,6 +42,7 @@ ruff = "0.6.9"
 pytest = "^8.3.3"
 pyright = "1.1.384"
 pytest-cov = "^4.1.0"
+codespell = "^2.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0"]
@@ -50,11 +51,14 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 memsparkline = 'memsparkline.main:main'
 
+[tool.codespell]
+quiet-level = 3
+
 [tool.poe.env]
 "PYTHON_SOURCES" = "src tests"
 
 [tool.poe.tasks.check]
-sequence = ["format", "lint", "type"]
+sequence = ["format", "spell", "lint", "type"]
 help = "Run the formatter, then all static checks"
 ignore_fail = "return_non_zero"
 
@@ -69,6 +73,10 @@ help = "Run Ruff"
 [tool.poe.tasks.memsparkline]
 cmd = "python -m memsparkline"
 help = "Run memsparkline"
+
+[tool.poe.tasks.spell]
+cmd = "codespell ${PYTHON_SOURCES}"
+help = "Run codespell"
 
 [tool.poe.tasks.test]
 cmd = "pytest"
