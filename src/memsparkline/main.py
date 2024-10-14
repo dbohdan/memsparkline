@@ -227,10 +227,7 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         "--wait",
         default=1000,
         dest="wait",
-        help=(
-            "how long to wait "
-            "between making memory usage records (default: %(default)d)"
-        ),
+        help="how frequently to record memory usage (default: every %(default)d ms)",
         metavar="ms",
         type=int,
     )

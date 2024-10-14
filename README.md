@@ -132,8 +132,8 @@ options:
   -q, --quiet           do not print sparklines, only final report
   -t fmt, --time-format fmt
                         format string for run time (default: "%d:%02d:%04.1f")
-  -w ms, --wait ms      how long to wait between making memory usage records
-                        (default: 1000)
+  -w ms, --wait ms      how frequently to record memory usage (default: every
+                        1000 ms)
 ```
 
 
