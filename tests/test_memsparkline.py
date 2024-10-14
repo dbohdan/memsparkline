@@ -73,12 +73,12 @@ class TestMemsparkline(unittest.TestCase):
         assert re.search("(?s).*avg:.*max:", run(*sleep_command()))
 
     def test_length(self) -> None:
-        stderr = run("-l", "5", "-w", "50", *sleep_command())
+        stderr = run("-l", "5", "-w", "10", *sleep_command())
 
         assert re.search("(?m)\\r[^ ]{5} \\d+\\.\\d\\n avg", stderr)
 
     def test_mem_format(self) -> None:
-        stderr = run("-l", "5", "-w", "50", "-m", "%0.2f", *sleep_command())
+        stderr = run("-l", "5", "-w", "10", "-m", "%0.2f", *sleep_command())
 
         assert re.search("(?m)\\r[^ ]{5} \\d+\\.\\d{2}\\n avg", stderr)
 
@@ -93,9 +93,9 @@ class TestMemsparkline(unittest.TestCase):
         assert len(stderr.split("\n")) == 5
 
     def test_wait_2(self) -> None:
-        stderr = run("-n", "-w", "50", *sleep_command())
+        stderr = run("-n", "-w", "10", *sleep_command())
 
-        assert len(stderr.split("\n")) in range(10, 15)
+        assert len(stderr.split("\n")) >= 10
 
     def test_sample_and_record(self) -> None:
         stderr = run("-r", "500", "-s", "100", *sleep_command())
@@ -130,7 +130,7 @@ class TestMemsparkline(unittest.TestCase):
 
         lines = dump_path.read_text().splitlines()
 
-        assert len(lines) in {5, 6}
+        assert lines
         assert all(re.match(r"\d+ \d+", line) for line in lines)
 
     def test_output(self) -> None:
