@@ -67,7 +67,7 @@ class TestMemsparkline(unittest.TestCase):
         assert re.search("^usage", run(check=False))
 
     def test_version(self) -> None:
-        assert re.search("\\d+\\.\\d+\\.\\d+", run("-v", return_stdout=True))
+        assert re.search(r"\d+\.\d+\.\d+", run("-v", return_stdout=True))
 
     def test_basic(self) -> None:
         assert re.search("(?s).*avg:.*max:", run(*sleep_command()))
@@ -75,17 +75,17 @@ class TestMemsparkline(unittest.TestCase):
     def test_length(self) -> None:
         stderr = run("-l", "5", "-w", "10", *sleep_command())
 
-        assert re.search("(?m)\\r[^ ]{5} \\d+\\.\\d\\n avg", stderr)
+        assert re.search(r"(?m)\r[^ ]{5} \d+\.\d\r?\n avg", stderr)
 
     def test_mem_format(self) -> None:
         stderr = run("-l", "5", "-w", "10", "-m", "%0.2f", *sleep_command())
 
-        assert re.search("(?m)\\r[^ ]{5} \\d+\\.\\d{2}\\n avg", stderr)
+        assert re.search(r"(?m)\r[^ ]{5} \d+\.\d{2}\r?\n avg", stderr)
 
     def test_time_format(self) -> None:
         stderr = run("-l", "10", "-t", "%d:%05d:%06.3f", *sleep_command())
 
-        assert re.search("(?m)time: \\d+\\:\\d{5}:\\d{2}\\.\\d{3}\\n", stderr)
+        assert re.search(r"(?m)time: \d+:\d{5}:\d{2}\.\d{3}\r?\n", stderr)
 
     def test_wait_1(self) -> None:
         stderr = run("-w", "2000", *sleep_command())
