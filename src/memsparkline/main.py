@@ -39,8 +39,8 @@ if TYPE_CHECKING:
 __version__ = "0.6.0"
 
 
-DEFAULT_RECORD_INTERVAL = 1000
-DEFAULT_SAMPLE_INTERVAL = 200
+DEFAULT_RECORD_TIME = 1000
+DEFAULT_SAMPLE_TIME = 200
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20  # Report memory usage in binary megabytes.
 
@@ -222,7 +222,7 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         default=None,
         help=(
             "how frequently to record/report memory usage "
-            f"(default: every {DEFAULT_RECORD_INTERVAL} ms)"
+            f"(default: every {DEFAULT_RECORD_TIME} ms)"
         ),
         metavar="ms",
         type=int,
@@ -233,7 +233,7 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         default=None,
         help=(
             "how frequently to sample memory usage "
-            f"(default: every {DEFAULT_SAMPLE_INTERVAL} ms)"
+            f"(default: every {DEFAULT_SAMPLE_TIME} ms)"
         ),
         metavar="ms",
         type=int,
@@ -259,9 +259,9 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
     args = parser.parse_args(argv[1:])
 
     if args.record is None:
-        args.record = args.wait or DEFAULT_RECORD_INTERVAL
+        args.record = args.wait or DEFAULT_RECORD_TIME
     if args.sample is None:
-        args.sample = args.wait or DEFAULT_SAMPLE_INTERVAL
+        args.sample = args.wait or DEFAULT_SAMPLE_TIME
 
     return args
 
