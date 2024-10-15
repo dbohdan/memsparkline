@@ -4,7 +4,6 @@ Track the RAM usage ([resident set size](https://en.wikipedia.org/wiki/Resident_
 See the average and the maximum usage after the process exits, as well as the run time.
 
 
-
 ## Examples
 
 ```none
@@ -39,20 +38,69 @@ time: 0:00:10.1
 memsparkline works on POSIX systems supported by [psutil](https://github.com/giampaolo/psutil).
 It has been tested on Debian, Ubuntu, FreeBSD, NetBSD, and OpenBSD.
 
-It seems to work on Windows, although Windows support has received little testing.
-The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts but correctly on Windows 10 with the font NSimSun.
+Although memsparkline seems to work on Windows, Windows support has received little testing outside of [CI](https://en.wikipedia.org/wiki/Continuous_integration).
+The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts.
+It displays correctly on Windows 10 with the font NSimSun.
 
-memsparkline has a separate sampling and reporting interval setting.
-The sampling interval determines how frequently it measures memory usage.
-The reporting interval determines how it prints the memory usage and adds it to history for the `--dump` ooption.
-When sampling is more frequent than reporting (the default setting),
-memsparkline uses the highest sampled value for each reporting interval
 
-A short sample interval like 25 ms can result in high CPU usage, up to 100% of one CPU core.
+## Operation
+
+### Usage
+
+```none
+usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q]
+                    [-r ms] [-s ms] [-t fmt] [-w ms]
+                    command ...
+
+Track the RAM usage (resident set size) of a process and its descendants in
+real time.
+
+positional arguments:
+  command               command to run
+  args                  arguments to command
+
+options:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -d path, --dump path  file in which to write full memory usage history when
+                        finished
+  -l n, --length n      sparkline length (default: 20)
+  -m fmt, --mem-format fmt
+                        format string for memory amounts (default: "%0.1f")
+  -n, --newlines        print new sparkline on new line instead of over
+                        previous
+  -o path, --output path
+                        output file to append to ("-" for standard error)
+  -q, --quiet           do not print sparklines, only final report
+  -r ms, --record ms    how frequently to record/report memory usage (default:
+                        every 1000 ms)
+  -s ms, --sample ms    how frequently to sample memory usage (default: every
+                        200 ms)
+  -t fmt, --time-format fmt
+                        format string for run time (default: "%d:%02d:%04.1f")
+  -w ms, --wait ms      set "--sample" and "--record" time simultaneously
+                        (that both options override)
+```
+
+### Samples and records
+
+memsparkline differentiates between _samples_ and _records_.
+Samples are measurements of memory usage.
+Records are information about memory usage printed to the chosen output (given by `--output`) and added to history (saved using the `--dump` option).
+
+There is a separate setting for the sample time and the record time.
+The sample time determines the interval between when memory usage is measured.
+The record time determines the interval between when a record is made (written to the output and added to history).
+When sampling is more frequent than recording (as with the default settings),
+memsparkline uses the highest sampled value since the last record.
+
+A short sample time like 5 ms can result in high CPU usage,
+up to 100% of one CPU core.
 To reduce CPU usage, sample less frequently.
-The default sample interval of 200 ms results in memsparkline using around 10% of a 2019 x86-64 core on the developer's machine.
-A record interval that is shorter than the sample interval
-records duplicate samples and should be avoided.
+The default sample time of 200 ms results in memsparkline using around 10% of a 2019 x86-64 core on the developer's machine.
+
+Records are only created after a sample has been taken.
+Setting the record time shorter than the sample time is allowed for convenience but equivalent to setting it to the sample time.
 
 
 ## Installation
@@ -112,44 +160,6 @@ doas pkg_add py3-psutil
 ```
 
 
-## Usage
-
-```none
-usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q]
-                    [-r ms] [-s ms] [-t fmt] [-w ms]
-                    command ...
-
-Track the RAM usage (resident set size) of a process and its descendants in
-real time.
-
-positional arguments:
-  command               command to run
-  args                  arguments to command
-
-options:
-  -h, --help            show this help message and exit
-  -v, --version         show program's version number and exit
-  -d path, --dump path  file in which to write full memory usage history when
-                        finished
-  -l n, --length n      sparkline length (default: 20)
-  -m fmt, --mem-format fmt
-                        format string for memory amounts (default: "%0.1f")
-  -n, --newlines        print new sparkline on new line instead of over
-                        previous
-  -o path, --output path
-                        output file to append to ("-" for standard error)
-  -q, --quiet           do not print sparklines, only final report
-  -r ms, --record ms    how frequently to record/report memory usage (default:
-                        every 1000 ms)
-  -s ms, --sample ms    how frequently to sample memory usage (default: every
-                        200 ms)
-  -t fmt, --time-format fmt
-                        format string for run time (default: "%d:%02d:%04.1f")
-  -w ms, --wait ms      set sample and record time simultaneously (that both
-                        options override)
-```
-
-
 ## License
 
 MIT.
@@ -157,9 +167,9 @@ MIT.
 
 ## See also
 
-memusg and spark inspired this project.
+memusg and spark (both linked below) inspired this project.
 
-### Tracking  memory usage
+### Tracking memory usage
 
 * [DragonFly BSD](https://man.dragonflybsd.org/?command=time&section=ANY), [FreeBSD](https://man.freebsd.org/cgi/man.cgi?query=time&format=html), [NetBSD](https://man.netbsd.org/time.1), [OpenBSD](https://man.openbsd.org/time), and [macOS](https://ss64.com/osx/time.html) time(1) flag `-l`.
 * [GNU time(1)](https://linux.die.net/man/1/time) flag `-v`.
