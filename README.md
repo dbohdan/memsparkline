@@ -42,8 +42,17 @@ It has been tested on Debian, Ubuntu, FreeBSD, NetBSD, and OpenBSD.
 It seems to work on Windows, although Windows support has received little testing.
 The sparkline displays incorrectly in the Command Prompt and [ConEmu](https://conemu.github.io/) on Windows 7 with the stock console fonts but correctly on Windows 10 with the font NSimSun.
 
-memsparkline tries to measure run time and to sample memory usage close to every 25 ms.
-The interval between record creation (`-w`/`--wait` argument) must be a multiple of 50 ms.
+memsparkline has a separate sampling and reporting interval setting.
+The sampling interval determines how frequently it measures memory usage.
+The reporting interval determines how it prints the memory usage and adds it to history for the `--dump` ooption.
+When sampling is more frequent than reporting (the default setting),
+memsparkline uses the highest sampled value for each reporting interval
+
+A short sample interval like 25 ms can result in high CPU usage, up to 100% of one CPU core.
+To reduce CPU usage, sample less frequently.
+The default sample interval of 200 ms results in memsparkline using around 10% of a 2019 x86-64 core on the developer's machine.
+A record interval that is shorter than the sample interval
+records duplicate samples and should be avoided.
 
 
 ## Installation
@@ -107,7 +116,7 @@ doas pkg_add py3-psutil
 
 ```none
 usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q]
-                    [-t fmt] [-w ms]
+                    [-r ms] [-s ms] [-t fmt] [-w ms]
                     command ...
 
 Track the RAM usage (resident set size) of a process and its descendants in
@@ -130,10 +139,14 @@ options:
   -o path, --output path
                         output file to append to ("-" for standard error)
   -q, --quiet           do not print sparklines, only final report
+  -r ms, --record ms    how frequently to record/report memory usage (default:
+                        every 1000 ms)
+  -s ms, --sample ms    how frequently to sample memory usage (default: every
+                        200 ms)
   -t fmt, --time-format fmt
                         format string for run time (default: "%d:%02d:%04.1f")
-  -w ms, --wait ms      how frequently to record memory usage (default: every
-                        1000 ms)
+  -w ms, --wait ms      set sample and record time simultaneously (that both
+                        options override)
 ```
 
 

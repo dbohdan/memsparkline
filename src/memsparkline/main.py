@@ -38,7 +38,9 @@ if TYPE_CHECKING:
 
 __version__ = "0.6.0"
 
-SAMPLE_INTERVAL = 25
+
+DEFAULT_RECORD_INTERVAL = 1000
+DEFAULT_SAMPLE_INTERVAL = 200
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20  # Report memory usage in binary megabytes.
 
@@ -55,7 +57,8 @@ def main() -> None:
                 output,
                 newlines=args.newlines,
                 sparkline_length=args.length,
-                wait=args.wait,
+                wait_record=args.record,
+                wait_sample=args.sample,
                 mem_format=args.mem_format,
                 quiet=args.quiet,
             )
@@ -214,6 +217,28 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         help="do not print sparklines, only final report",
     )
     parser.add_argument(
+        "-r",
+        "--record",
+        default=None,
+        help=(
+            "how frequently to record/report memory usage "
+            f"(default: every {DEFAULT_RECORD_INTERVAL} ms)"
+        ),
+        metavar="ms",
+        type=int,
+    )
+    parser.add_argument(
+        "-s",
+        "--sample",
+        default=None,
+        help=(
+            "how frequently to sample memory usage "
+            f"(default: every {DEFAULT_SAMPLE_INTERVAL} ms)"
+        ),
+        metavar="ms",
+        type=int,
+    )
+    parser.add_argument(
         "-t",
         "--time-format",
         default="%d:%02d:%04.1f",
@@ -225,18 +250,18 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument(
         "-w",
         "--wait",
-        default=1000,
-        dest="wait",
-        help="how frequently to record memory usage (default: every %(default)d ms)",
+        default=None,
+        help="set sample and record time simultaneously (that both options override)",
         metavar="ms",
         type=int,
     )
 
     args = parser.parse_args(argv[1:])
 
-    wait_factor = SAMPLE_INTERVAL * 2
-    if args.wait % wait_factor != 0:
-        parser.error(f"wait time must be a multiple of {wait_factor} ms")
+    if args.record is None:
+        args.record = args.wait or DEFAULT_RECORD_INTERVAL
+    if args.sample is None:
+        args.sample = args.wait or DEFAULT_SAMPLE_INTERVAL
 
     return args
 
@@ -260,7 +285,8 @@ def track(
     *,
     newlines: bool = False,
     sparkline_length: int = 20,
-    wait: int = 1000,
+    wait_sample: int = 100,
+    wait_record: int = 1000,
     mem_format: str = "0.1f%",
     quiet: bool = False,
 ) -> tuple[int, list[int], list[int]]:
@@ -281,7 +307,7 @@ def track(
     def add_record(current_time: int) -> None:
         nonlocal last_record_time
 
-        if current_time - last_record_time < wait * 1_000_000:
+        if current_time - last_record_time < wait_record * 1_000_000:
             return
 
         history.append(record_maximum)
@@ -311,7 +337,7 @@ def track(
 
             delta = (current_time - last_sample_time) // 1_000_000
             last_sample_time = current_time
-            time.sleep(max(0, (SAMPLE_INTERVAL - delta) / 1000))
+            time.sleep(max(0, (wait_sample - delta) / 1000))
 
         add_record(time.time_ns())
     except (KeyboardInterrupt, psutil.NoSuchProcess):

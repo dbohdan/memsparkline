@@ -97,6 +97,11 @@ class TestMemsparkline(unittest.TestCase):
 
         assert len(stderr.split("\n")) in range(10, 15)
 
+    def test_sample_and_record(self) -> None:
+        stderr = run("-r", "500", "-s", "100", *sleep_command())
+
+        assert len(stderr.split("\n")) == 5
+
     def test_quiet(self) -> None:
         stderr = run("-q", *sleep_command())
 
