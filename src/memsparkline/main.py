@@ -251,7 +251,10 @@ def cli(argv: Sequence[str]) -> argparse.Namespace:
         "-w",
         "--wait",
         default=None,
-        help="set sample and record time simultaneously (that both options override)",
+        help=(
+            'set "--sample" and "--record" time simultaneously '
+            "(that both options override)"
+        ),
         metavar="ms",
         type=int,
     )
