@@ -353,7 +353,7 @@ def sparkline(minimum: float, maximum: float, data: Sequence[float]) -> str:
     tick_max = len(SPARKLINE_TICKS) - 1
 
     if minimum == maximum:
-        return SPARKLINE_TICKS[0]
+        return SPARKLINE_TICKS[0] * len(data)
 
     return "".join(
         SPARKLINE_TICKS[int(tick_max * (x - minimum) / (maximum - minimum))]
