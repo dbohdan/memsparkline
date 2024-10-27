@@ -41,6 +41,7 @@ __version__ = "0.6.1"
 
 DEFAULT_RECORD_TIME = 1000
 DEFAULT_SAMPLE_TIME = 200
+SPARKLINE_LOW_MAXIMUM = 0.01
 SPARKLINE_TICKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 USAGE_DIVISOR = 1 << 20  # Report memory usage in binary megabytes.
 
@@ -319,7 +320,7 @@ def track(
 
         if not quiet:
             latest = history[-sparkline_length:]
-            line = sparkline(0, maximum, latest)
+            line = sparkline(maximum, latest)
             print(
                 fmt % (line, record_maximum / USAGE_DIVISOR),
                 end="",
@@ -349,16 +350,13 @@ def track(
     return (maximum, history, timestamps)
 
 
-def sparkline(minimum: float, maximum: float, data: Sequence[float]) -> str:
-    tick_max = len(SPARKLINE_TICKS) - 1
-
-    if minimum == maximum:
+def sparkline(maximum: float, data: Sequence[float]) -> str:
+    if maximum < SPARKLINE_LOW_MAXIMUM:
         return SPARKLINE_TICKS[0] * len(data)
 
-    return "".join(
-        SPARKLINE_TICKS[int(tick_max * (x - minimum) / (maximum - minimum))]
-        for x in data
-    )
+    tick_max = len(SPARKLINE_TICKS) - 1
+
+    return "".join([SPARKLINE_TICKS[int(tick_max * x / maximum)] for x in data])
 
 
 if __name__ == "__main__":
