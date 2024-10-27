@@ -36,7 +36,7 @@ import psutil
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-__version__ = "0.6.0"
+__version__ = "0.6.1"
 
 
 DEFAULT_RECORD_TIME = 1000
