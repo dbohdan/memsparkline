@@ -645,6 +645,10 @@ func hmsDelta(start, end time.Time) (int, int, float64) {
 }
 
 func sparkline(maximum int64, data []int64) string {
+	if maximum <= sparklineLowMaximum {
+		return strings.Repeat(string(sparklineTicks[0]), max(1, len(data)))
+	}
+
 	tickMax := int64(len(sparklineTicks) - 1)
 	result := strings.Builder{}
 
