@@ -189,8 +189,8 @@ Options:
 	fmt.Print(wrapForTerm(s))
 }
 
-func parseArgs() (*config, error) {
-	cfg := &config{
+func parseArgs() config {
+	cfg := config{
 		dumpPath:   defaultDumpPath,
 		length:     defaultLength,
 		memFormat:  defaultMemFormat,
@@ -215,9 +215,10 @@ func parseArgs() (*config, error) {
 		}
 	}
 
-	usageError := func(message string, badValue interface{}) error {
+	usageError := func(message string, badValue interface{}) {
 		usage(os.Stderr)
-		return fmt.Errorf(message, badValue)
+		fmt.Fprintf(os.Stderr, "\nError: "+message+"\n", badValue)
+		os.Exit(2)
 	}
 
 	// Parse the command-line flags.
@@ -226,12 +227,14 @@ func parseArgs() (*config, error) {
 	waitTimeSet := false
 
 	var i int
-	nextArg := func(flag string) (string, error) {
+	nextArg := func(flag string) string {
 		i++
+
 		if i >= len(os.Args) {
-			return "", fmt.Errorf("no value for option %q", flag)
+			usageError("no value for option %q", flag)
 		}
-		return os.Args[i], nil
+
+		return os.Args[i]
 	}
 
 	for i = 1; i < len(os.Args); i++ {
@@ -247,106 +250,72 @@ func parseArgs() (*config, error) {
 		switch arg {
 
 		case "-d", "--dump":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
-
-			cfg.dumpPath = value
+			cfg.dumpPath = nextArg(arg)
 
 		case "-l", "--length":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
+			value := nextArg(arg)
 
 			length, err := strconv.Atoi(value)
 			if err != nil {
-				return nil, usageError("invalid length: %v", value)
+				usageError("invalid length: %v", value)
 			}
 
 			cfg.length = length
 
 		case "-m", "--mem-format":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
-
-			cfg.memFormat = value
+			cfg.memFormat = nextArg(arg)
 
 		case "-n", "--newlines":
 			cfg.newlines = true
 
 		case "-o", "--output":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
-
-			cfg.outputPath = value
+			cfg.outputPath = nextArg(arg)
 
 		case "-q", "--quiet":
 			cfg.quiet = true
 
 		case "-r", "--record":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
-
+			value := nextArg(arg)
 			record, err := strconv.Atoi(value)
-			if err != nil {
-				return nil, usageError("invalid record time: %v", value)
+		    if err != nil {
+				usageError("invalid record time: %v", value)
 			}
 
 			cfg.record = record
 			recondTimeSet = true
 
 		case "-s", "--sample":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
-
+			value := nextArg(arg)
 			sample, err := strconv.Atoi(value)
 			if err != nil {
-				return nil, usageError("invalid sample time: %v", value)
+				usageError("invalid sample time: %v", value)
 			}
 
 			cfg.sample = sample
 			sampleTimeSet = true
 
 		case "-t", "--time-format":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
-
-			cfg.timeFormat = value
+			cfg.timeFormat = nextArg(arg)
 
 		case "-w", "--wait":
-			value, err := nextArg(arg)
-			if err != nil {
-				return nil, err
-			}
+			value := nextArg(arg)
 
 			wait, err := strconv.Atoi(value)
 			if err != nil {
-				return nil, usageError("invalid wait time: %v", value)
+				usageError("invalid wait time: %v", value)
 			}
 
 			cfg.wait = wait
 			waitTimeSet = true
 
 		default:
-			return nil, usageError("unknown option: %v", arg)
+			usageError("unknown option: %v", arg)
 		}
 	}
 
 	// Ensure we have a command.
 	if i >= len(os.Args) {
-		return nil, usageError("command is required%v", "")
+		usageError("command is required%v", "")
 	}
 
 	// Set the command and arguments.
@@ -368,15 +337,11 @@ func parseArgs() (*config, error) {
 		}
 	}
 
-	return cfg, nil
+	return cfg
 }
 
 func main() {
-	cfg, err := parseArgs()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(2)
-	}
+	cfg := parseArgs()
 
 	if err := run(cfg); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -384,7 +349,7 @@ func main() {
 	}
 }
 
-func run(cfg *config) error {
+func run(cfg config) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
