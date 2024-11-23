@@ -277,7 +277,7 @@ func parseArgs() config {
 		case "-r", "--record":
 			value := nextArg(arg)
 			record, err := strconv.Atoi(value)
-		    if err != nil {
+			if err != nil {
 				usageError("invalid record time: %v", value)
 			}
 

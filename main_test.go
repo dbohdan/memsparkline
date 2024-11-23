@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	command = getCommand()
+	command  = getCommand()
 	testPath = getCurrentDir()
 )
 
