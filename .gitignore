@@ -1,6 +1,11 @@
-/*.build
-/*.dist
+/attic/
+/dist/
+
+*.bak
+*.exe
 *.log
-__pycache__
 *.swp
-/.tox
+
+/help
+/memsparkline
+/test/sleep
