@@ -580,7 +580,7 @@ func average[T int64](values []T) T {
 func dumpHistory(path string, timestamps []int64, values []int64) error {
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("failed to open history dump file: %w", err)
+		return err
 	}
 	defer file.Close()
 
