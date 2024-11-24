@@ -482,7 +482,6 @@ func run(cfg config) error {
 	}
 
 	// Get the complete final stats.
-	// Stop memory tracking.
 	timestamps, values, maximum := memTracker.History(-1)
 	endTime := time.Now().UTC()
 
