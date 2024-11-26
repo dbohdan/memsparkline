@@ -70,6 +70,14 @@ func TestBasic(t *testing.T) {
 	}
 }
 
+func TestEndOfOptions(t *testing.T) {
+	args := append([]string{"--"}, getSleepCommand(0.1)...)
+	_, stderr, _ := run_memsparkline(t, args...)
+	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
+		t.Error("Expected 'avg:' and 'max:' in output")
+	}
+}
+
 func TestLength(t *testing.T) {
 	args := append([]string{"-l", "5", "-w", "10"}, getSleepCommand(0.5)...)
 	_, stderr, _ := run_memsparkline(t, args...)
