@@ -242,8 +242,9 @@ func parseArgs() config {
 
 		if arg == "--" {
 			i++
+			break
 		}
-		if arg == "--" || !strings.HasPrefix(arg, "-") {
+		if !strings.HasPrefix(arg, "-") {
 			break
 		}
 
