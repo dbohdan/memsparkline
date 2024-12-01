@@ -201,24 +201,6 @@ func parseArgs() config {
 		wait:       defaultWait,
 	}
 
-	// Check for a help or version flag first.
-loop:
-	for _, arg := range os.Args[1:] {
-		if arg == "--" || !strings.HasPrefix(arg, "-") {
-			break loop
-		}
-
-		switch arg {
-		case "-h", "--help":
-			help()
-			os.Exit(0)
-
-		case "-v", "--version":
-			fmt.Println(version)
-			os.Exit(0)
-		}
-	}
-
 	usageError := func(message string, badValue interface{}) {
 		usage(os.Stderr)
 		fmt.Fprintf(os.Stderr, "\nError: "+message+"\n", badValue)
@@ -256,6 +238,10 @@ loop:
 
 		case "-d", "--dump":
 			cfg.dumpPath = nextArg(arg)
+
+		case "-h", "--help":
+			help()
+			os.Exit(0)
 
 		case "-l", "--length":
 			value := nextArg(arg)
@@ -301,6 +287,10 @@ loop:
 
 		case "-t", "--time-format":
 			cfg.timeFormat = nextArg(arg)
+
+		case "-v", "--version":
+			fmt.Println(version)
+			os.Exit(0)
 
 		case "-w", "--wait":
 			value := nextArg(arg)
