@@ -100,13 +100,13 @@ Options:
           Sparkline length (default: 20)
 
   -m, --mem-format fmt
-          Format string for memory amounts (default: "%.1f")
+          Format string for memory amounts (default: '%.1f')
 
   -n, --newlines
           Print new sparkline on new line instead of over previous
 
   -o, --output path
-          Output file to append to ("-" for standard error)
+          Output file to append to ('-' for standard error)
 
   -q, --quiet
           Do not print sparklines, only final report
@@ -118,10 +118,10 @@ Options:
           How frequently to sample memory usage in ms (default: 200)
 
   -t, --time-format fmt
-          Format string for run time (default: "%d:%02d:%04.1f")
+          Format string for run time (default: '%d:%02d:%04.1f')
 
   -w, --wait ms
-          Set "--sample" and "--record" time simultaneously (that both options
+          Set '--sample' and '--record' time simultaneously (that both options
 override)
 ```
 

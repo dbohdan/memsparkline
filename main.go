@@ -155,13 +155,13 @@ Options:
           Sparkline length (default: %d)
 
   -m, --mem-format fmt
-          Format string for memory amounts (default: %q)
+          Format string for memory amounts (default: '%v')
 
   -n, --newlines
           Print new sparkline on new line instead of over previous
 
   -o, --output path
-          Output file to append to (%q for standard error)
+          Output file to append to ('%v' for standard error)
 
   -q, --quiet
           Do not print sparklines, only final report
@@ -173,10 +173,10 @@ Options:
           How frequently to sample memory usage in ms (default: %d)
 
   -t, --time-format fmt
-          Format string for run time (default: %q)
+          Format string for run time (default: '%v')
 
   -w, --wait ms
-          Set "--sample" and "--record" time simultaneously (that both options override)
+          Set '--sample' and '--record' time simultaneously (that both options override)
 `,
 		defaultLength,
 		defaultMemFormat,
@@ -235,7 +235,7 @@ loop:
 		i++
 
 		if i >= len(os.Args) {
-			usageError("no value for option %q", flag)
+			usageError("no value for option: %s", flag)
 		}
 
 		return os.Args[i]
