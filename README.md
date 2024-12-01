@@ -74,7 +74,7 @@ It displays correctly on Windows 10 with the font NSimSun.
 
 ```none
 Usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t
-fmt] [-w ms] command [arg ...]
+fmt] [-w ms] [--] command [arg ...]
 
 Track the RAM usage (resident set size) of a process and its descendants in
 real time.

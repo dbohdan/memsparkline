@@ -55,7 +55,7 @@ const (
 	defaultWait         = -1
 	sparklineLowMaximum = 10000
 	usageDivisor        = 1 << 20 // Report memory usage in binary megabytes.
-	version             = "0.7.1"
+	version             = "0.8.0"
 )
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -121,7 +121,7 @@ func wrapForTerm(s string) string {
 
 func usage(w io.Writer) {
 	s := fmt.Sprintf(
-		`Usage: %s [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t fmt] [-w ms] command [arg ...]`,
+		`Usage: %s [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t fmt] [-w ms] [--] command [arg ...]`,
 		filepath.Base(os.Args[0]),
 	)
 
@@ -202,9 +202,13 @@ func parseArgs() config {
 	}
 
 	// Check for a help or version flag first.
-	for _, arg := range os.Args {
-		switch arg {
+loop:
+	for _, arg := range os.Args[1:] {
+		if arg == "--" || !strings.HasPrefix(arg, "-") {
+			break loop
+		}
 
+		switch arg {
 		case "-h", "--help":
 			help()
 			os.Exit(0)
