@@ -55,7 +55,7 @@ const (
 	defaultWait         = -1
 	sparklineLowMaximum = 10000
 	usageDivisor        = 1 << 20 // Report memory usage in binary megabytes.
-	version             = "0.8.0"
+	version             = "0.8.1"
 )
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -208,6 +208,9 @@ func parseArgs() config {
 	}
 
 	// Parse the command-line flags.
+	printHelp := false
+	printVersion := false
+
 	recondTimeSet := false
 	sampleTimeSet := false
 	waitTimeSet := false
@@ -240,8 +243,7 @@ func parseArgs() config {
 			cfg.dumpPath = nextArg(arg)
 
 		case "-h", "--help":
-			help()
-			os.Exit(0)
+			printHelp = true
 
 		case "-l", "--length":
 			value := nextArg(arg)
@@ -289,8 +291,7 @@ func parseArgs() config {
 			cfg.timeFormat = nextArg(arg)
 
 		case "-v", "--version":
-			fmt.Println(version)
-			os.Exit(0)
+			printVersion = true
 
 		case "-w", "--wait":
 			value := nextArg(arg)
@@ -306,6 +307,16 @@ func parseArgs() config {
 		default:
 			usageError("unknown option: %v", arg)
 		}
+	}
+
+	if printHelp {
+		help()
+		os.Exit(0)
+	}
+
+	if printVersion {
+		fmt.Println(version)
+		os.Exit(0)
 	}
 
 	// Ensure we have a command.

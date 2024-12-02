@@ -30,7 +30,7 @@ func getCurrentDir() string {
 	return filepath.Dir(filename)
 }
 
-func run_memsparkline(t *testing.T, args ...string) (string, string, error) {
+func runMemsparkline(t *testing.T, args ...string) (string, string, error) {
 	// Start with command args, if any, then add the test-specific args.
 	allArgs := append([]string{}, command[1:]...)
 	allArgs = append(allArgs, args...)
@@ -49,22 +49,38 @@ func getSleepCommand(duration float64) []string {
 }
 
 func TestUsage(t *testing.T) {
-	_, stderr, _ := run_memsparkline(t)
+	_, stderr, _ := runMemsparkline(t)
 	if matched, _ := regexp.MatchString("^Usage", stderr); !matched {
 		t.Error("Expected usage information in stderr")
 	}
 }
 
 func TestVersion(t *testing.T) {
-	stdout, _, _ := run_memsparkline(t, "-v")
+	stdout, _, _ := runMemsparkline(t, "-v")
 	if matched, _ := regexp.MatchString(`\d+\.\d+\.\d+`, stdout); !matched {
 		t.Error("Expected version number in stdout")
 	}
 }
 
+func TestUnknownOptBeforeHelp(t *testing.T) {
+	_, _, err := runMemsparkline(t, "--foo", "--help")
+
+	if exitErr, ok := err.(*exec.ExitError); !ok || exitErr.ExitCode() != 2 {
+		t.Errorf("Expected exit status 2, got %v", err)
+	}
+}
+
+func TestUnknownOptAfterHelp(t *testing.T) {
+	_, _, err := runMemsparkline(t, "--help", "--foo")
+
+	if exitErr, ok := err.(*exec.ExitError); !ok || exitErr.ExitCode() != 2 {
+		t.Errorf("Expected exit status 2, got %v", err)
+	}
+}
+
 func TestBasic(t *testing.T) {
 	args := getSleepCommand(0.5)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
 		t.Error("Expected 'avg:' and 'max:' in output")
 	}
@@ -73,7 +89,7 @@ func TestBasic(t *testing.T) {
 func TestEndOfOptions(t *testing.T) {
 	args := append([]string{"--"}, getSleepCommand(0.1)...)
 
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
 		t.Error("Expected 'avg:' and 'max:' in output")
 	}
@@ -83,7 +99,7 @@ func TestEndOfOptionsHelp(t *testing.T) {
 	args := append([]string{"--"}, getSleepCommand(0.1)...)
 	args = append(args, "-h")
 
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
 		t.Error("Expected 'avg:' and 'max:' in output")
 	}
@@ -91,7 +107,7 @@ func TestEndOfOptionsHelp(t *testing.T) {
 
 func TestLength(t *testing.T) {
 	args := append([]string{"-l", "5", "-w", "10"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{5} \d+\.\d\r?\n avg`, stderr); !matched {
 		t.Error("Expected sparkline of specific length followed by summary")
@@ -100,7 +116,7 @@ func TestLength(t *testing.T) {
 
 func TestMemFormat(t *testing.T) {
 	args := append([]string{"-l", "5", "-w", "10", "-m", "%0.2f"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{5} \d+\.\d{2}\r?\n avg`, stderr); !matched {
 		t.Error("Expected sparkline with memory format with two decimal places")
@@ -109,7 +125,7 @@ func TestMemFormat(t *testing.T) {
 
 func TestTimeFormat(t *testing.T) {
 	args := append([]string{"-l", "10", "-t", "%d:%05d:%06.3f"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString(`(?m)time: \d+:\d{5}:\d{2}\.\d{3}\r?\n`, stderr); !matched {
 		t.Error("Expected specific time format in summary")
@@ -118,7 +134,7 @@ func TestTimeFormat(t *testing.T) {
 
 func TestWait1(t *testing.T) {
 	args := append([]string{"-w", "2000"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if lines := strings.Count(stderr, "\n"); lines != 4 {
 		t.Errorf("Expected 4 lines in output, got %d", lines)
@@ -127,7 +143,7 @@ func TestWait1(t *testing.T) {
 
 func TestWait2(t *testing.T) {
 	args := append([]string{"-n", "-w", "10"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if lines := strings.Count(stderr, "\n"); lines < 9 {
 		t.Errorf("Expected at least 9 lines in output, got %d", lines)
@@ -136,7 +152,7 @@ func TestWait2(t *testing.T) {
 
 func TestSampleAndRecord(t *testing.T) {
 	args := append([]string{"-r", "500", "-s", "100"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if lines := strings.Count(stderr, "\n"); lines != 4 {
 		t.Errorf("Expected 4 lines in output, got %d", lines)
@@ -145,7 +161,7 @@ func TestSampleAndRecord(t *testing.T) {
 
 func TestQuiet(t *testing.T) {
 	args := append([]string{"-q"}, getSleepCommand(0.5)...)
-	_, stderr, _ := run_memsparkline(t, args...)
+	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString("^ avg", stderr); !matched {
 		t.Error("Expected output to start with 'avg' in quiet mode")
@@ -153,7 +169,7 @@ func TestQuiet(t *testing.T) {
 }
 
 func TestMissingBinary(t *testing.T) {
-	_, stderr, err := run_memsparkline(t, "no-such-binary-exists")
+	_, stderr, err := runMemsparkline(t, "no-such-binary-exists")
 
 	if err == nil {
 		t.Error("Expected error for missing binary")
@@ -165,7 +181,7 @@ func TestMissingBinary(t *testing.T) {
 }
 
 func TestDoubleDash(t *testing.T) {
-	stdout, _, _ := run_memsparkline(t, "--", "ls", "-l")
+	stdout, _, _ := runMemsparkline(t, "--", "ls", "-l")
 
 	if !strings.Contains(stdout, "\n") {
 		t.Error("Expected newline in output")
@@ -174,7 +190,7 @@ func TestDoubleDash(t *testing.T) {
 
 func TestTwoDoubleDashes(t *testing.T) {
 	args := append(command, "--", "ls", "-l")
-	stdout, _, _ := run_memsparkline(t, append([]string{"--"}, args...)...)
+	stdout, _, _ := runMemsparkline(t, append([]string{"--"}, args...)...)
 
 	if !strings.Contains(stdout, "\n") {
 		t.Error("Expected newline in output")
@@ -187,7 +203,7 @@ func TestDump(t *testing.T) {
 	os.Remove(dumpPath)
 
 	args := append([]string{"-q", "-w", "100", "-d", dumpPath}, getSleepCommand(0.5)...)
-	run_memsparkline(t, args...)
+	runMemsparkline(t, args...)
 
 	content, err := os.ReadFile(dumpPath)
 	if err != nil {
@@ -213,7 +229,7 @@ func TestOutput(t *testing.T) {
 
 	args := append([]string{"-q", "-o", outputPath}, getSleepCommand(0.5)...)
 	for i := 0; i < 2; i++ {
-		run_memsparkline(t, args...)
+		runMemsparkline(t, args...)
 	}
 
 	content, err := os.ReadFile(outputPath)
