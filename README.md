@@ -55,7 +55,7 @@ go install github.com/dbohdan/memsparkline@latest
 
 - Go 1.21
 - OS supported by [gopsutil](https://github.com/shirou/gopsutil)
-- POSIX Make for testing
+- [Task](https://taskfile.dev/) (go-task) 3.28
 
 ## Compatibility and limitations
 

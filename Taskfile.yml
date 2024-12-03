@@ -1,0 +1,83 @@
+version: '3'
+
+vars:
+  ext: '{{if eq OS "windows"}}.exe{{end}}'
+  test_binaries: |
+    test/sleep
+
+env:
+  CGO_ENABLED: 0
+
+tasks:
+  default:
+    deps:
+      - all
+
+  all:
+    desc: 'Build and test everything'
+    deps:
+      - build
+      - test
+
+  build:
+    desc: 'Build all components'
+    deps:
+      - build_binaries
+
+  build_binaries:
+    desc: 'Build all necessary binaries'
+    deps:
+      - build_memsparkline
+      - build_test_binaries
+
+  build_binary:
+    desc: 'Build a single Go binary'
+    internal: true
+    cmds:
+      - go build -o {{.out | shellQuote}}{{.ext}} {{.src | shellQuote}}
+
+  build_memsparkline:
+    desc: 'Build the memsparkline binary'
+    cmds:
+      - task: build_binary
+        vars:
+          out: memsparkline
+          src: main.go
+    sources:
+      - main.go
+    generates:
+      - memsparkline
+
+  build_test_binaries:
+    desc: 'Build all test binaries'
+    deps:
+      - build_test_sleep
+
+  build_test_sleep:
+    cmds:
+      - task: build_binary
+        vars:
+          src: test/sleep.go
+          out: test/sleep
+    sources:
+      - test/sleep.go
+    generates:
+      - test/sleep
+
+  clean:
+    desc: 'Clean up binaries'
+    cmds:
+      - rm -f memsparkline
+      - rm -f {{range .test_binaries | splitLines }}{{. | shellQuote}} {{end}}
+
+  release:
+    desc: 'Prepare a release'
+    cmds:
+      - go run script/release.go
+
+  test:
+    desc: 'Run tests'
+    deps:
+      - build_binaries
+    cmds:
+      - go test
