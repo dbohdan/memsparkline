@@ -49,16 +49,15 @@ tasks:
       - memsparkline
 
   build_test_binaries:
-    desc: 'Build all test binaries'
-    deps:
-      - build_test_sleep
-
-  build_test_sleep:
+    desc: 'Build the test binaries'
     cmds:
       - task: build_binary
         vars:
-          src: test/sleep.go
-          out: test/sleep
+          src: '{{.test_binary}}.go'
+          out: '{{.test_binary}}'
+        for:
+          var: test_binaries
+          as: test_binary
     sources:
       - test/sleep.go
     generates:
@@ -68,7 +67,10 @@ tasks:
     desc: 'Clean up binaries'
     cmds:
       - rm -f memsparkline
-      - rm -f {{range .test_binaries | splitLines }}{{. | shellQuote}} {{end}}
+      - cmd: rm -f {{.test_binary | shellQuote}}
+        for:
+          var: test_binaries
+          as: test_binary
 
   release:
     desc: 'Prepare a release'
