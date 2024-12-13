@@ -23,6 +23,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -55,7 +56,7 @@ const (
 	defaultWait         = -1
 	sparklineLowMaximum = 10000
 	usageDivisor        = 1 << 20 // Report memory usage in binary megabytes.
-	version             = "0.8.1"
+	version             = "0.9.0"
 )
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -350,7 +351,16 @@ func main() {
 	cfg := parseArgs()
 
 	if err := run(cfg); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		if cfg.outputPath == defaultOutputPath && !cfg.newlines {
+			fmt.Fprintln(os.Stderr)
+		}
+
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			os.Exit(exitErr.ExitCode())
+		}
+
+		fmt.Fprintln(os.Stderr, "Error: ", err)
 		os.Exit(1)
 	}
 }
