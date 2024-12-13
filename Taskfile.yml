@@ -46,7 +46,7 @@ tasks:
     sources:
       - main.go
     generates:
-      - memsparkline
+      - memsparkline{{.ext}}
 
   build_test_binaries:
     desc: 'Build the test binaries'
@@ -61,13 +61,13 @@ tasks:
     sources:
       - test/sleep.go
     generates:
-      - test/sleep
+      - test/sleep{{.ext}}
 
   clean:
     desc: 'Clean up binaries'
     cmds:
-      - rm -f memsparkline
-      - cmd: rm -f {{.test_binary | shellQuote}}
+      - rm -f memsparkline{{.ext}}
+      - cmd: rm -f {{.test_binary | shellQuote}}{{.ext}}
         for:
           var: test_binaries
           as: test_binary
