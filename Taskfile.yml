@@ -74,8 +74,10 @@ tasks:
 
   release:
     desc: 'Prepare a release'
+    deps:
+      - build_binaries
     cmds:
-      - go run script/release.go
+      - VERSION=$(./memsparkline --version) go run script/release.go
 
   test:
     desc: 'Run tests'
