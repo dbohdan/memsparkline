@@ -77,7 +77,7 @@ tasks:
     deps:
       - build_binaries
     cmds:
-      - VERSION=$(./memsparkline --version) go run script/release.go
+      - VERSION=$(./memsparkline{{.ext}} --version) go run script/release.go
 
   test:
     desc: 'Run tests'
