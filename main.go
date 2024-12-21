@@ -56,7 +56,7 @@ const (
 	defaultWait         = -1
 	sparklineLowMaximum = 10000
 	usageDivisor        = 1 << 20 // Report memory usage in binary megabytes.
-	version             = "0.9.0"
+	version             = "0.9.1"
 )
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -536,31 +536,36 @@ func getOutput(path string) (*os.File, error) {
 }
 
 func getMemoryUsage(proc *process.Process) (int64, error) {
-	children, err := proc.Children()
-	if err != nil && err != process.ErrorNoChildren {
-		return 0, err
-	}
+	procs := []*process.Process{proc}
+	var total int64
 
-	var total uint64
-	for _, child := range children {
-		mem, err := child.MemoryInfo()
+	for len(procs) > 0 {
+		current := procs[0]
+		procs = procs[1:]
 
-		// If we can't get memory info for a child, skip it.
-		if err == nil && mem != nil && mem.RSS > 0 {
-			total += mem.RSS
+		if current == nil {
+			continue
+		}
+
+		children, err := current.Children()
+		if err != nil && err != process.ErrorNoChildren {
+			return 0, err
+		}
+		procs = append(procs, children...)
+
+		for _, child := range children {
+			mem, err := child.MemoryInfo()
+
+			// If we can't get memory info for a child, skip it.
+			if err != nil || mem == nil {
+				continue
+			}
+
+			total += int64(mem.RSS)
 		}
 	}
 
-	memInfo, err := proc.MemoryInfo()
-	if err != nil {
-		return 0, fmt.Errorf("failed to get process memory info: %w", err)
-	}
-	if memInfo == nil {
-		return 0, fmt.Errorf("no memory info available")
-	}
-
-	total += memInfo.RSS
-	return int64(total), nil
+	return total, nil
 }
 
 func summarize(values []int64, maximum int64, start, end time.Time, memFormat, timeFormat string) string {
