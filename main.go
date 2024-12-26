@@ -360,7 +360,7 @@ func main() {
 			os.Exit(exitErr.ExitCode())
 		}
 
-		fmt.Fprintln(os.Stderr, "Error: ", err)
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
 }
