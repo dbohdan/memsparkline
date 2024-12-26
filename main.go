@@ -56,7 +56,7 @@ const (
 	defaultWait         = -1
 	sparklineLowMaximum = 10000
 	usageDivisor        = 1 << 20 // Report memory usage in binary megabytes.
-	version             = "0.9.1"
+	version             = "0.9.2"
 )
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -536,33 +536,30 @@ func getOutput(path string) (*os.File, error) {
 }
 
 func getMemoryUsage(proc *process.Process) (int64, error) {
-	procs := []*process.Process{proc}
+	queue := []*process.Process{proc}
 	var total int64
 
-	for len(procs) > 0 {
-		current := procs[0]
-		procs = procs[1:]
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
 
 		if current == nil {
 			continue
 		}
 
+		mem, err := current.MemoryInfo()
+		if err != nil {
+			return 0, err
+		}
+
+		total += int64(mem.RSS)
+
 		children, err := current.Children()
 		if err != nil && err != process.ErrorNoChildren {
 			return 0, err
 		}
-		procs = append(procs, children...)
 
-		for _, child := range children {
-			mem, err := child.MemoryInfo()
-
-			// If we can't get memory info for a child, skip it.
-			if err != nil || mem == nil {
-				continue
-			}
-
-			total += int64(mem.RSS)
-		}
+		queue = append(queue, children...)
 	}
 
 	return total, nil
