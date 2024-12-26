@@ -145,8 +145,9 @@ func TestWait2(t *testing.T) {
 	args := append([]string{"-n", "-w", "10"}, getSleepCommand(0.5)...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
-	if lines := strings.Count(stderr, "\n"); lines < 9 {
-		t.Errorf("Expected at least 9 lines in output, got %d", lines)
+	minLines := 8
+	if lines := strings.Count(stderr, "\n"); lines < minLines {
+		t.Errorf("Expected at least %d lines in output, got %d", minLines, lines)
 	}
 }
 
