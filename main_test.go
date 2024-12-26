@@ -203,7 +203,7 @@ func TestDump(t *testing.T) {
 	os.Remove(dumpPath)
 
 	args := append([]string{"-q", "-w", "100", "-d", dumpPath}, getSleepCommand(0.5)...)
-	runMemsparkline(t, args...)
+	_, _, _ = runMemsparkline(t, args...)
 
 	content, err := os.ReadFile(dumpPath)
 	if err != nil {
@@ -215,8 +215,10 @@ func TestDump(t *testing.T) {
 		t.Error("Expected non-empty dump file")
 	}
 
+	re := regexp.MustCompile(`\d+ \d+`)
+
 	for _, line := range lines {
-		if matched, _ := regexp.MatchString(`\d+ \d+`, line); !matched {
+		if matched := re.MatchString(line); !matched {
 			t.Errorf("Invalid line format: %s", line)
 		}
 	}
@@ -229,7 +231,7 @@ func TestOutput(t *testing.T) {
 
 	args := append([]string{"-q", "-o", outputPath}, getSleepCommand(0.5)...)
 	for i := 0; i < 2; i++ {
-		runMemsparkline(t, args...)
+		_, _, _ = runMemsparkline(t, args...)
 	}
 
 	content, err := os.ReadFile(outputPath)

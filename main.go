@@ -404,7 +404,7 @@ func run(cfg config) error {
 	// Ensure we shut down the process.
 	defer func() {
 		if cmd.Process != nil {
-			cmd.Process.Kill()
+			_ = cmd.Process.Kill()
 		}
 	}()
 
