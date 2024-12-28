@@ -48,7 +48,7 @@ are attached to [releases](https://github.com/dbohdan/memsparkline/releases).
 Install Go, then run the following command:
 
 ```shell
-go install github.com/dbohdan/memsparkline@latest
+go install dbohdan.com/memsparkline@latest
 ```
 
 ## Build requirements

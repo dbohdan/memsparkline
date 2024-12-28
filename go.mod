@@ -1,4 +1,4 @@
-module github.com/dbohdan/memsparkline
+module dbohdan.com/memsparkline
 
 go 1.21
 
