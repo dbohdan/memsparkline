@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -44,8 +43,8 @@ func runMemsparkline(t *testing.T, args ...string) (string, string, error) {
 	return stdout.String(), stderr.String(), err
 }
 
-func getSleepCommand(duration float64) []string {
-	return []string{"test/sleep", strconv.FormatFloat(duration, 'f', -1, 64)}
+func getSleepCommand(args ...string) []string {
+	return append([]string{"test/sleep"}, args...)
 }
 
 func TestUsage(t *testing.T) {
@@ -79,15 +78,28 @@ func TestUnknownOptAfterHelp(t *testing.T) {
 }
 
 func TestBasic(t *testing.T) {
-	args := getSleepCommand(0.5)
+	args := getSleepCommand("0.5")
 	_, stderr, _ := runMemsparkline(t, args...)
 	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
 		t.Error("Expected 'avg:' and 'max:' in output")
 	}
 }
 
+func TestExit99(t *testing.T) {
+	args := getSleepCommand("0.5", "99")
+	_, stderr, err := runMemsparkline(t, args...)
+
+	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
+		t.Error("Expected 'avg:' and 'max:' in output")
+	}
+
+	if exitErr, ok := err.(*exec.ExitError); !ok || exitErr.ExitCode() != 99 {
+		t.Errorf("Expected exit status 99, got %v", err)
+	}
+}
+
 func TestEndOfOptions(t *testing.T) {
-	args := append([]string{"--"}, getSleepCommand(0.1)...)
+	args := append([]string{"--"}, getSleepCommand("0.1")...)
 
 	_, stderr, _ := runMemsparkline(t, args...)
 	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
@@ -96,8 +108,7 @@ func TestEndOfOptions(t *testing.T) {
 }
 
 func TestEndOfOptionsHelp(t *testing.T) {
-	args := append([]string{"--"}, getSleepCommand(0.1)...)
-	args = append(args, "-h")
+	args := append([]string{"--"}, getSleepCommand("0.1", "-h")...)
 
 	_, stderr, _ := runMemsparkline(t, args...)
 	if matched, _ := regexp.MatchString(`(?s).*avg:.*max:`, stderr); !matched {
@@ -106,7 +117,7 @@ func TestEndOfOptionsHelp(t *testing.T) {
 }
 
 func TestLength(t *testing.T) {
-	args := append([]string{"-l", "5", "-w", "10"}, getSleepCommand(0.5)...)
+	args := append([]string{"-l", "5", "-w", "10"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{5} \d+\.\d\r?\n avg`, stderr); !matched {
@@ -115,7 +126,7 @@ func TestLength(t *testing.T) {
 }
 
 func TestMemFormat(t *testing.T) {
-	args := append([]string{"-l", "5", "-w", "10", "-m", "%0.2f"}, getSleepCommand(0.5)...)
+	args := append([]string{"-l", "5", "-w", "10", "-m", "%0.2f"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{5} \d+\.\d{2}\r?\n avg`, stderr); !matched {
@@ -124,7 +135,7 @@ func TestMemFormat(t *testing.T) {
 }
 
 func TestTimeFormat(t *testing.T) {
-	args := append([]string{"-l", "10", "-t", "%d:%05d:%06.3f"}, getSleepCommand(0.5)...)
+	args := append([]string{"-l", "10", "-t", "%d:%05d:%06.3f"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString(`(?m)time: \d+:\d{5}:\d{2}\.\d{3}\r?\n`, stderr); !matched {
@@ -133,7 +144,7 @@ func TestTimeFormat(t *testing.T) {
 }
 
 func TestWait1(t *testing.T) {
-	args := append([]string{"-w", "2000"}, getSleepCommand(0.5)...)
+	args := append([]string{"-w", "2000"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	if lines := strings.Count(stderr, "\n"); lines != 4 {
@@ -142,7 +153,7 @@ func TestWait1(t *testing.T) {
 }
 
 func TestWait2(t *testing.T) {
-	args := append([]string{"-n", "-w", "10"}, getSleepCommand(0.5)...)
+	args := append([]string{"-n", "-w", "10"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	minLines := 8
@@ -152,7 +163,7 @@ func TestWait2(t *testing.T) {
 }
 
 func TestSampleAndRecord(t *testing.T) {
-	args := append([]string{"-r", "500", "-s", "100"}, getSleepCommand(0.5)...)
+	args := append([]string{"-r", "500", "-s", "100"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	if lines := strings.Count(stderr, "\n"); lines != 4 {
@@ -161,7 +172,7 @@ func TestSampleAndRecord(t *testing.T) {
 }
 
 func TestQuiet(t *testing.T) {
-	args := append([]string{"-q"}, getSleepCommand(0.5)...)
+	args := append([]string{"-q"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
 	if matched, _ := regexp.MatchString("^ avg", stderr); !matched {
@@ -203,7 +214,7 @@ func TestDump(t *testing.T) {
 	// Clean up any existing file so we don't append to it.
 	os.Remove(dumpPath)
 
-	args := append([]string{"-q", "-w", "100", "-d", dumpPath}, getSleepCommand(0.5)...)
+	args := append([]string{"-q", "-w", "100", "-d", dumpPath}, getSleepCommand("0.5")...)
 	_, _, _ = runMemsparkline(t, args...)
 
 	content, err := os.ReadFile(dumpPath)
@@ -230,7 +241,7 @@ func TestOutput(t *testing.T) {
 	// Clean up any existing file so we don't append to it.
 	os.Remove(outputPath)
 
-	args := append([]string{"-q", "-o", outputPath}, getSleepCommand(0.5)...)
+	args := append([]string{"-q", "-o", outputPath}, getSleepCommand("0.5")...)
 	for i := 0; i < 2; i++ {
 		_, _, _ = runMemsparkline(t, args...)
 	}

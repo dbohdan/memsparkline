@@ -481,15 +481,13 @@ func run(cfg config) error {
 	}()
 
 	// Wait for either the command's completion or a signal.
+	var doneErr error
 	select {
 
 	case err := <-done:
 		// Stop memory tracking.
 		cancel()
-
-		if err != nil {
-			return err
-		}
+		doneErr = err
 
 	case sig := <-sigChan:
 		cancel()
@@ -519,7 +517,7 @@ func run(cfg config) error {
 		}
 	}
 
-	return nil
+	return doneErr
 }
 
 func getOutput(path string) (*os.File, error) {
