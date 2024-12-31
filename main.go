@@ -61,6 +61,19 @@ const (
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
 
+type signalError struct {
+	signal os.Signal
+}
+
+func (e signalError) Error() string {
+	return fmt.Sprintf("received signal: %v", e.signal)
+}
+
+func (e signalError) Is(target error) bool {
+	_, ok := target.(signalError)
+	return ok
+}
+
 type config struct {
 	arguments  []string
 	command    string
@@ -351,7 +364,7 @@ func main() {
 	cfg := parseArgs()
 
 	if err := run(cfg); err != nil {
-		if cfg.outputPath == defaultOutputPath && !cfg.newlines {
+		if !cfg.newlines && cfg.outputPath == defaultOutputPath && errors.Is(err, signalError{}) {
 			fmt.Fprintln(os.Stderr)
 		}
 
@@ -492,7 +505,7 @@ func run(cfg config) error {
 	case sig := <-sigChan:
 		cancel()
 
-		return fmt.Errorf("received signal: %v", sig)
+		return signalError{signal: sig}
 	}
 
 	// Get the complete final stats.
