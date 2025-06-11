@@ -4,7 +4,7 @@ _memsparkline() {
     COMPREPLY=()
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD - 1]}
-    opts='-h --help -v --version -d --dump -l --length -m --mem-format -n --newlines -o --output -q --quiet -r --record -s --sample -t --time-format -w --wait'
+    opts='-h --help -V --version -d --dump -l --length -m --mem-format -n --newlines -o --output -q --quiet -r --record -s --sample -t --time-format -w --wait'
 
     case "${prev}" in
     -d | --dump | -o | --output)

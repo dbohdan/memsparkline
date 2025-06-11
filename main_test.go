@@ -55,7 +55,7 @@ func TestUsage(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	stdout, _, _ := runMemsparkline(t, "-v")
+	stdout, _, _ := runMemsparkline(t, "-V")
 	if matched, _ := regexp.MatchString(`\d+\.\d+\.\d+`, stdout); !matched {
 		t.Error("Expected version number in stdout")
 	}

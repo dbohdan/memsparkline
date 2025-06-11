@@ -1,5 +1,5 @@
 complete -c memsparkline -s h -l help -d 'Print help message and exit'
-complete -c memsparkline -s v -l version -d 'Print version number and exit'
+complete -c memsparkline -s V -l version -d 'Print version number and exit'
 complete -c memsparkline -s d -l dump -d 'File to append memory usage history to' -r
 complete -c memsparkline -s l -l length -d 'Sparkline length' -r -a "20 40 60 80"
 complete -c memsparkline -s m -l mem-format -d 'Format string for memory amounts' -r -a "%.0f %.1f %.2f"

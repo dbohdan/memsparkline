@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2022-2024 D. Bohdan
+// Copyright (c) 2020, 2022-2025 D. Bohdan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -135,7 +135,7 @@ func wrapForTerm(s string) string {
 
 func usage(w io.Writer) {
 	s := fmt.Sprintf(
-		`Usage: %s [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t fmt] [-w ms] [--] command [arg ...]`,
+		`Usage: %s [-h] [-V] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t fmt] [-w ms] [--] command [arg ...]`,
 		filepath.Base(os.Args[0]),
 	)
 
@@ -159,7 +159,7 @@ Options:
   -h, --help
           Print this help message and exit
 
-  -v, --version
+  -V, --version
           Print the version number and exit
 
   -d, --dump path
@@ -304,7 +304,7 @@ func parseArgs() config {
 		case "-t", "--time-format":
 			cfg.timeFormat = nextArg(arg)
 
-		case "-v", "--version":
+		case "-V", "--version":
 			printVersion = true
 
 		case "-w", "--wait":
