@@ -73,7 +73,7 @@ It displays correctly on Windows 10 with the font NSimSun.
 ### Usage
 
 ```none
-Usage: memsparkline [-h] [-v] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t
+Usage: memsparkline [-h] [-V] [-d path] [-l n] [-m fmt] [-n] [-o path] [-q] [-t
 fmt] [-w ms] [--] command [arg ...]
 
 Track the RAM usage (resident set size) of a process and its descendants in
@@ -90,7 +90,7 @@ Options:
   -h, --help
           Print this help message and exit
 
-  -v, --version
+  -V, --version
           Print the version number and exit
 
   -d, --dump path
