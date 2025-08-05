@@ -22,24 +22,24 @@ tasks:
   build:
     desc: 'Build all components'
     deps:
-      - build_binaries
+      - build-binaries
 
-  build_binaries:
+  build-binaries:
     desc: 'Build all necessary binaries'
     deps:
-      - build_memsparkline
-      - build_test_binaries
+      - build-memsparkline
+      - build-test-binaries
 
-  build_binary:
+  build-binary:
     desc: 'Build a single Go binary'
     internal: true
     cmds:
       - go build -o {{.out | shellQuote}}{{.ext}} {{.src | shellQuote}}
 
-  build_memsparkline:
+  build-memsparkline:
     desc: 'Build the memsparkline binary'
     cmds:
-      - task: build_binary
+      - task: build-binary
         vars:
           out: memsparkline
           src: main.go
@@ -48,10 +48,10 @@ tasks:
     generates:
       - memsparkline{{.ext}}
 
-  build_test_binaries:
+  build-test-binaries:
     desc: 'Build the test binaries'
     cmds:
-      - task: build_binary
+      - task: build-binary
         vars:
           src: '{{.test_binary}}.go'
           out: '{{.test_binary}}'
@@ -75,13 +75,13 @@ tasks:
   release:
     desc: 'Prepare a release'
     deps:
-      - build_binaries
+      - build-binaries
     cmds:
       - VERSION=$(./memsparkline{{.ext}} --version) go run script/release.go
 
   test:
     desc: 'Run tests'
     deps:
-      - build_binaries
+      - build-binaries
     cmds:
       - go test
