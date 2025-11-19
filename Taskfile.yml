@@ -33,7 +33,7 @@ tasks:
     desc: 'Build a single Go binary'
     internal: true
     cmds:
-      - go build -o {{.out | shellQuote}}{{exeExt}} {{.src | shellQuote}}
+      - go build -o {{.out | shellQuote}}{{exeExt}} -trimpath {{.src | shellQuote}}
 
   build-memsparkline:
     desc: 'Build the memsparkline binary'
