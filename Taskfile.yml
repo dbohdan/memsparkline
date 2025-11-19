@@ -1,7 +1,6 @@
 version: '3'
 
 vars:
-  ext: '{{if eq OS "windows"}}.exe{{end}}'
   test_binaries: |
     test/sleep
 
@@ -34,7 +33,7 @@ tasks:
     desc: 'Build a single Go binary'
     internal: true
     cmds:
-      - go build -o {{.out | shellQuote}}{{.ext}} {{.src | shellQuote}}
+      - go build -o {{.out | shellQuote}}{{exeExt}} {{.src | shellQuote}}
 
   build-memsparkline:
     desc: 'Build the memsparkline binary'
@@ -46,7 +45,7 @@ tasks:
     sources:
       - main.go
     generates:
-      - memsparkline{{.ext}}
+      - memsparkline{{exeExt}}
 
   build-test-binaries:
     desc: 'Build the test binaries'
@@ -61,13 +60,13 @@ tasks:
     sources:
       - test/sleep.go
     generates:
-      - test/sleep{{.ext}}
+      - test/sleep{{exeExt}}
 
   clean:
     desc: 'Clean up binaries'
     cmds:
-      - rm -f memsparkline{{.ext}}
-      - cmd: rm -f {{.test_binary | shellQuote}}{{.ext}}
+      - rm -f memsparkline{{exeExt}}
+      - cmd: rm -f {{.test_binary | shellQuote}}{{exeExt}}
         for:
           var: test_binaries
           as: test_binary
@@ -77,7 +76,7 @@ tasks:
     deps:
       - build-binaries
     cmds:
-      - VERSION=$(./memsparkline{{.ext}} --version) go run script/release.go
+      - VERSION=$(./memsparkline{{exeExt}} --version) go run script/release.go
 
   test:
     desc: 'Run tests'
