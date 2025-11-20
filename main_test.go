@@ -44,7 +44,7 @@ func runMemsparkline(t *testing.T, args ...string) (string, string, error) {
 }
 
 func getSleepCommand(args ...string) []string {
-	return append([]string{"test/sleep"}, args...)
+	return append([]string{"test/sleep/sleep"}, args...)
 }
 
 func TestUsage(t *testing.T) {

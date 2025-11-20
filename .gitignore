@@ -5,8 +5,8 @@
 *.bak
 *.exe
 *.log
-*.swp
+*.sw*
 
 /help
 /memsparkline
-/test/sleep
+/test/sleep/sleep

@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  test_binaries: |
+  test_commands: |
     test/sleep
 
 env:
@@ -21,66 +21,65 @@ tasks:
   build:
     desc: 'Build all components'
     deps:
-      - build-binaries
+      - build-commands
 
-  build-binaries:
-    desc: 'Build all necessary binaries'
+  build-commands:
+    desc: 'Build all commands'
     deps:
       - build-memsparkline
-      - build-test-binaries
+      - build-test-commands
 
-  build-binary:
-    desc: 'Build a single Go binary'
+  build-package:
+    desc: 'Build a single Go package'
     internal: true
+    dir: '{{.package}}'
     cmds:
-      - go build -o {{.out | shellQuote}}{{exeExt}} -trimpath {{.src | shellQuote}}
+      - go build -trimpath
 
   build-memsparkline:
-    desc: 'Build the memsparkline binary'
+    desc: 'Build the memsparkline command'
     cmds:
-      - task: build-binary
+      - task: build-package
         vars:
-          out: memsparkline
-          src: main.go
+          package: .
     sources:
       - main.go
     generates:
       - memsparkline{{exeExt}}
 
-  build-test-binaries:
-    desc: 'Build the test binaries'
+  build-test-commands:
+    desc: 'Build all test commands'
     cmds:
-      - task: build-binary
+      - task: build-package
         vars:
-          src: '{{.test_binary}}.go'
-          out: '{{.test_binary}}'
+          package: '{{.test_command}}'
         for:
-          var: test_binaries
-          as: test_binary
+          var: test_commands
+          as: test_command
     sources:
-      - test/sleep.go
+      - test/**/*.go
     generates:
-      - test/sleep{{exeExt}}
+      - test/sleep/sleep{{exeExt}}
 
   clean:
     desc: 'Clean up binaries'
     cmds:
       - rm -f memsparkline{{exeExt}}
-      - cmd: rm -f {{.test_binary | shellQuote}}{{exeExt}}
+      - cmd: rm -f {{.test_command | shellQuote}}{{.test_command | base | shellQuote}}{{exeExt}}
         for:
-          var: test_binaries
-          as: test_binary
+          var: test_commands
+          as: test_command
 
   release:
     desc: 'Prepare a release'
     deps:
-      - build-binaries
+      - build-commands
     cmds:
       - VERSION=$(./memsparkline{{exeExt}} --version) go run script/release.go
 
   test:
     desc: 'Run tests'
     deps:
-      - build-binaries
+      - build-commands
     cmds:
       - go test
