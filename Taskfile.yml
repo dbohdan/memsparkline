@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  test_commands: |
+  TEST_HELPERS: |
     test/sleep
 
 env:
@@ -21,65 +21,67 @@ tasks:
   build:
     desc: 'Build all components'
     deps:
-      - build-commands
+      - build:bin
 
-  build-commands:
-    desc: 'Build all commands'
+  build:bin:
+    desc: 'Build all binaries'
     deps:
-      - build-memsparkline
-      - build-test-commands
+      - build:memsparkline
+      - build:helpers
 
-  build-package:
+  build:package:
     desc: 'Build a single Go package'
     internal: true
-    dir: '{{.package}}'
+    dir: '{{.PACKAGE}}'
     cmds:
-      - go build -trimpath
+      - 'go build -trimpath # {{.PACKAGE}}'
 
-  build-memsparkline:
-    desc: 'Build the memsparkline command'
+  build:memsparkline:
+    desc: 'Build the memsparkline binary'
+    run: once
     cmds:
-      - task: build-package
+      - task: build:package
         vars:
-          package: .
+          PACKAGE: .
     sources:
       - main.go
     generates:
       - memsparkline{{exeExt}}
 
-  build-test-commands:
-    desc: 'Build all test commands'
+  build:helpers:
+    desc: 'Build all test helpers'
+    run: once
     cmds:
-      - task: build-package
+      - task: build:package
         vars:
-          package: '{{.test_command}}'
+          PACKAGE: '{{.HELPER}}'
         for:
-          var: test_commands
-          as: test_command
+          var: TEST_HELPERS
+          as: HELPER
     sources:
       - test/**/*.go
-    generates:
-      - test/sleep/sleep{{exeExt}}
+    status:
+      - '{{range $i, $path := .TEST_HELPERS | trim | splitLines}}{{if $i}} && {{end}}test -f {{$path | shellQuote}}/{{$path | base | shellQuote}}{{exeExt}}{{end}}'
 
   clean:
     desc: 'Clean up binaries'
     cmds:
       - rm -f memsparkline{{exeExt}}
-      - cmd: rm -f {{.test_command | shellQuote}}{{.test_command | base | shellQuote}}{{exeExt}}
+      - cmd: rm -f {{.HELPER | shellQuote}}/{{.HELPER | base | shellQuote}}{{exeExt}}
         for:
-          var: test_commands
-          as: test_command
+          var: TEST_HELPERS
+          as: HELPER
 
   release:
     desc: 'Prepare a release'
     deps:
-      - build-commands
+      - build:bin
     cmds:
       - VERSION=$(./memsparkline{{exeExt}} --version) go run script/release.go
 
   test:
     desc: 'Run tests'
     deps:
-      - build-commands
+      - build:bin
     cmds:
       - go test
