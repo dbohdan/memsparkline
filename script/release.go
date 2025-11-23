@@ -77,12 +77,15 @@ func build(dir string, target BuildTarget, version string) error {
 	if arch == "386" {
 		arch = "x86"
 	}
+
 	if system == "darwin" {
 		system = "macos"
 	}
+
 	if (system == "linux" || system == "macos") && arch == "amd64" {
 		arch = "x86_64"
 	}
+
 	if system == "linux" && arch == "arm64" {
 		arch = "aarch64"
 	}
@@ -91,6 +94,7 @@ func build(dir string, target BuildTarget, version string) error {
 	outputPath := filepath.Join(dir, filename)
 
 	cmd := exec.Command("go", "build", "-trimpath", "-o", outputPath, ".")
+
 	cmd.Env = append(os.Environ(),
 		"GOOS="+target.os,
 		"GOARCH="+target.arch,
@@ -101,10 +105,10 @@ func build(dir string, target BuildTarget, version string) error {
 		return fmt.Errorf("build command failed: %w\nOutput:\n%s", err, output)
 	}
 
-	return generateChecksum(outputPath, version)
+	return generateChecksum(outputPath)
 }
 
-func generateChecksum(filePath, version string) error {
+func generateChecksum(filePath string) error {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file for checksumming: %w", err)
@@ -121,6 +125,7 @@ func generateChecksum(filePath, version string) error {
 	checksumLine := fmt.Sprintf("%s  %s\n", hash, filepath.Base(filePath))
 
 	checksumFilePath := filepath.Join(filepath.Dir(filePath), checksumFilename)
+
 	f, err = os.OpenFile(checksumFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open checksum file: %w", err)

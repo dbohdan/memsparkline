@@ -43,20 +43,29 @@ import (
 )
 
 const (
-	defaultDumpPath     = ""
-	defaultLength       = 20
-	defaultMemFormat    = "%.1f"
-	defaultNewlines     = false
-	defaultOutputPath   = "-"
-	defaultQuiet        = false
-	defaultRecordTime   = 1000 // ms
-	defaultSampleTime   = 200  // ms
-	defaultTimeFormat   = "%d:%02d:%04.1f"
-	defaultVerbose      = false
-	defaultWait         = -1
-	sparklineLowMaximum = 10000
+	exitOK       = 0
+	exitError    = 1
+	exitBadUsage = 2
+
+	filePerms = 0o644
+
+	defaultDumpPath   = ""
+	defaultLength     = 20
+	defaultMemFormat  = "%.1f"
+	defaultNewlines   = false
+	defaultOutputPath = "-"
+	defaultQuiet      = false
+	defaultRecordTime = 1000 // ms
+	defaultSampleTime = 200  // ms
+	defaultTimeFormat = "%d:%02d:%04.1f"
+	defaultVerbose    = false
+	defaultWait       = -1
+
+	millisInNanosecond  = 1_000_000
+	sparklineLowMaximum = 10_000
 	usageDivisor        = 1 << 20 // Report memory usage in binary megabytes.
-	version             = "0.10.0"
+
+	version = "0.10.0"
 )
 
 var sparklineTicks = []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -71,6 +80,7 @@ func (e signalError) Error() string {
 
 func (e signalError) Is(target error) bool {
 	_, ok := target.(signalError)
+
 	return ok
 }
 
@@ -91,12 +101,12 @@ type config struct {
 
 type MemoryTracker struct {
 	timestamps []int64
-	values     []int64
-	maximum    int64
+	values     []uint64
+	maximum    uint64
 	mu         sync.RWMutex
 }
 
-func (mt *MemoryTracker) AddRecord(timestamp int64, value int64) {
+func (mt *MemoryTracker) AddRecord(timestamp int64, value uint64) {
 	mt.mu.Lock()
 	defer mt.mu.Unlock()
 
@@ -108,7 +118,7 @@ func (mt *MemoryTracker) AddRecord(timestamp int64, value int64) {
 	}
 }
 
-func (mt *MemoryTracker) History(count int) ([]int64, []int64, int64) {
+func (mt *MemoryTracker) History(count int) ([]int64, []uint64, uint64) {
 	mt.mu.RLock()
 	defer mt.mu.RUnlock()
 
@@ -118,7 +128,8 @@ func (mt *MemoryTracker) History(count int) ([]int64, []int64, int64) {
 
 	timestampsCopy := make([]int64, count)
 	copy(timestampsCopy, mt.timestamps[len(mt.timestamps)-count:])
-	valuesCopy := make([]int64, count)
+
+	valuesCopy := make([]uint64, count)
 	copy(valuesCopy, mt.values[len(mt.values)-count:])
 
 	return timestampsCopy, valuesCopy, mt.maximum
@@ -130,6 +141,7 @@ func wrapForTerm(s string) string {
 		return s
 	}
 
+	//nolint:gosec
 	return wordwrap.WrapString(s, uint(width))
 }
 
@@ -205,20 +217,24 @@ Options:
 
 func parseArgs() config {
 	cfg := config{
+		arguments:  []string{},
+		command:    "",
 		dumpPath:   defaultDumpPath,
 		length:     defaultLength,
 		memFormat:  defaultMemFormat,
+		newlines:   defaultNewlines,
 		outputPath: defaultOutputPath,
+		quiet:      defaultQuiet,
 		record:     defaultRecordTime,
 		sample:     defaultSampleTime,
 		timeFormat: defaultTimeFormat,
 		wait:       defaultWait,
 	}
 
-	usageError := func(message string, badValue interface{}) {
+	usageError := func(message string, badValue any) {
 		usage(os.Stderr)
 		fmt.Fprintf(os.Stderr, "\nError: "+message+"\n", badValue)
-		os.Exit(2)
+		os.Exit(exitBadUsage)
 	}
 
 	// Parse the command-line flags.
@@ -245,14 +261,15 @@ func parseArgs() config {
 
 		if arg == "--" {
 			i++
+
 			break
 		}
+
 		if !strings.HasPrefix(arg, "-") {
 			break
 		}
 
 		switch arg {
-
 		case "-d", "--dump":
 			cfg.dumpPath = nextArg(arg)
 
@@ -283,6 +300,7 @@ func parseArgs() config {
 
 		case "-r", "--record":
 			value := nextArg(arg)
+
 			record, err := strconv.Atoi(value)
 			if err != nil {
 				usageError("invalid record time: %v", value)
@@ -293,6 +311,7 @@ func parseArgs() config {
 
 		case "-s", "--sample":
 			value := nextArg(arg)
+
 			sample, err := strconv.Atoi(value)
 			if err != nil {
 				usageError("invalid sample time: %v", value)
@@ -325,12 +344,12 @@ func parseArgs() config {
 
 	if printHelp {
 		help()
-		os.Exit(0)
+		os.Exit(exitOK)
 	}
 
 	if printVersion {
 		fmt.Println(version)
-		os.Exit(0)
+		os.Exit(exitOK)
 	}
 
 	// Ensure we have a command.
@@ -374,7 +393,7 @@ func main() {
 		}
 
 		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
+		os.Exit(exitError)
 	}
 }
 
@@ -393,6 +412,7 @@ func run(cfg config) error {
 	if err != nil {
 		return err
 	}
+
 	if output != os.Stderr {
 		defer output.Close()
 	}
@@ -400,6 +420,7 @@ func run(cfg config) error {
 	// We use '\r' to print the sparklines on the same line by default.
 	coreFormat := "%s " + cfg.memFormat
 	sparklineFormat := "\r" + coreFormat
+
 	if cfg.newlines {
 		sparklineFormat = coreFormat + "\n"
 	}
@@ -422,6 +443,7 @@ func run(cfg config) error {
 	}()
 
 	// Get the process.
+	//nolint:gosec
 	proc, err := process.NewProcess(int32(cmd.Process.Pid))
 	if err != nil {
 		return fmt.Errorf("failed to get process: %w", err)
@@ -429,7 +451,7 @@ func run(cfg config) error {
 
 	// Create the memory-tracking data structures and closures that append to them.
 	memTracker := &MemoryTracker{}
-	sample := []int64{}
+	sample := []uint64{}
 
 	addSample := func() error {
 		mem, err := getMemoryUsage(proc)
@@ -437,7 +459,7 @@ func run(cfg config) error {
 			return err
 		}
 
-		sample = append(sample, int64(mem))
+		sample = append(sample, mem)
 
 		return nil
 	}
@@ -455,11 +477,12 @@ func run(cfg config) error {
 			fmt.Fprintf(output, sparklineFormat, line, float64(maximum)/usageDivisor)
 		}
 
-		sample = []int64{}
+		sample = []uint64{}
 	}
 
 	// Start memory tracking by adding an initial record before we wait.
 	_ = addSample()
+
 	addRecord()
 
 	done := make(chan error, 1)
@@ -473,7 +496,6 @@ func run(cfg config) error {
 
 		for {
 			select {
-
 			case <-ctx.Done():
 				return
 
@@ -495,11 +517,12 @@ func run(cfg config) error {
 
 	// Wait for either the command's completion or a signal.
 	var doneErr error
-	select {
 
+	select {
 	case err := <-done:
 		// Stop memory tracking.
 		cancel()
+
 		doneErr = err
 
 	case sig := <-sigChan:
@@ -538,7 +561,7 @@ func getOutput(path string) (*os.File, error) {
 		return os.Stderr, nil
 	}
 
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePerms)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open output file: %w", err)
 	}
@@ -546,9 +569,9 @@ func getOutput(path string) (*os.File, error) {
 	return file, nil
 }
 
-func getMemoryUsage(proc *process.Process) (int64, error) {
+func getMemoryUsage(proc *process.Process) (uint64, error) {
 	queue := []*process.Process{proc}
-	var total int64
+	var total uint64
 
 	for len(queue) > 0 {
 		current := queue[0]
@@ -560,14 +583,14 @@ func getMemoryUsage(proc *process.Process) (int64, error) {
 
 		mem, err := current.MemoryInfo()
 		if err != nil {
-			return 0, err
+			return 0, fmt.Errorf("failed to get process memory information: %w", err)
 		}
 
-		total += int64(mem.RSS)
+		total += mem.RSS
 
 		children, err := current.Children()
-		if err != nil && err != process.ErrorNoChildren {
-			return 0, err
+		if err != nil && !errors.Is(err, process.ErrorNoChildren) {
+			return 0, fmt.Errorf("failed to list process children: %w", err)
 		}
 
 		queue = append(queue, children...)
@@ -576,7 +599,7 @@ func getMemoryUsage(proc *process.Process) (int64, error) {
 	return total, nil
 }
 
-func summarize(values []int64, maximum int64, start, end time.Time, memFormat, timeFormat string) string {
+func summarize(values []uint64, maximum uint64, start, end time.Time, memFormat, timeFormat string) string {
 	avg := average(values)
 
 	result := strings.Builder{}
@@ -586,27 +609,29 @@ func summarize(values []int64, maximum int64, start, end time.Time, memFormat, t
 	result.WriteString("\n max: ")
 	result.WriteString(fmt.Sprintf(memFormat, float64(maximum)/usageDivisor))
 	result.WriteString("\ntime: ")
+
 	hours, minutes, seconds := hmsDelta(start, end)
+
 	result.WriteString(fmt.Sprintf(timeFormat, hours, minutes, seconds))
 
 	return result.String()
 }
 
-func average[T int64](values []T) T {
-	var sum T
+func average[T uint64](values []T) uint64 {
+	var sum uint64
 	for _, value := range values {
-		sum += value
+		sum += uint64(value)
 	}
 
 	if len(values) == 0 {
-		return T(0)
+		return 0
 	}
 
-	return sum / T(len(values))
+	return sum / uint64(len(values))
 }
 
-func dumpHistory(path string, timestamps []int64, values []int64) error {
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func dumpHistory(path string, timestamps []int64, values []uint64) error {
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePerms)
 	if err != nil {
 		return err
 	}
@@ -615,15 +640,20 @@ func dumpHistory(path string, timestamps []int64, values []int64) error {
 	writer := bufio.NewWriter(file)
 
 	for i, timestamp := range timestamps {
-		_, err := fmt.Fprintf(writer, "%d %d\n", timestamp/1_000_000, values[i])
+		_, err := fmt.Fprintf(writer, "%d %d\n", timestamp/millisInNanosecond, values[i])
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to write timestamp-value pair: %w", err)
 		}
 	}
 
-	return writer.Flush()
+	if err := writer.Flush(); err != nil {
+		return fmt.Errorf("failed to flush output buffer: %w", err)
+	}
+
+	return nil
 }
 
+//nolint:mnd
 func hmsDelta(start, end time.Time) (int, int, float64) {
 	delta := end.Sub(start)
 	totalMillis := int(delta / time.Millisecond)
@@ -631,22 +661,24 @@ func hmsDelta(start, end time.Time) (int, int, float64) {
 	hours := totalMillis / (60 * 60 * 1000)
 	remaining := totalMillis % (60 * 60 * 1000)
 	minutes := remaining / (60 * 1000)
-	remaining = remaining % (60 * 1000)
+	remaining %= 60 * 1000
 	seconds := float64(remaining) / 1000.0
 
 	return hours, minutes, seconds
 }
 
-func sparkline(maximum int64, data []int64) string {
+func sparkline(maximum uint64, data []uint64) string {
 	if maximum <= sparklineLowMaximum {
 		return strings.Repeat(string(sparklineTicks[0]), max(1, len(data)))
 	}
 
-	tickMax := int64(len(sparklineTicks) - 1)
+	tickMax := len(sparklineTicks) - 1
 	result := strings.Builder{}
 
 	for _, x := range data {
-		tickIndex := int(tickMax * x / maximum)
+		//nolint:gosec
+		tickIndex := int(uint64(tickMax) * x / maximum)
+
 		result.WriteRune(sparklineTicks[tickIndex])
 	}
 
