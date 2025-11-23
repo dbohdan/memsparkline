@@ -53,7 +53,7 @@ go install dbohdan.com/memsparkline@latest
 
 ## Build requirements
 
-- Go 1.21
+- Go 1.22
 - OS supported by [gopsutil](https://github.com/shirou/gopsutil)
 - [Task](https://taskfile.dev/) (go-task) 3.28
 

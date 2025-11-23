@@ -1,6 +1,6 @@
 module dbohdan.com/memsparkline
 
-go 1.21
+go 1.22
 
 require (
 	github.com/mitchellh/go-wordwrap v1.0.1
