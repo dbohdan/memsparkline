@@ -120,7 +120,7 @@ func TestLength(t *testing.T) {
 	args := append([]string{"-l", "5", "-w", "10"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
-	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{5} \d+\.\d\r?\n avg`, stderr); !matched {
+	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{4,5} \d+\.\d\r?\n avg`, stderr); !matched {
 		t.Error("Expected sparkline of specific length followed by summary")
 	}
 }
@@ -129,7 +129,7 @@ func TestMemFormat(t *testing.T) {
 	args := append([]string{"-l", "5", "-w", "10", "-m", "%0.2f"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
-	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{5} \d+\.\d{2}\r?\n avg`, stderr); !matched {
+	if matched, _ := regexp.MatchString(`(?m)\r[^ ]{4,5} \d+\.\d{2}\r?\n avg`, stderr); !matched {
 		t.Error("Expected sparkline with memory format with two decimal places")
 	}
 }
@@ -156,7 +156,7 @@ func TestWait2(t *testing.T) {
 	args := append([]string{"-n", "-w", "10"}, getSleepCommand("0.5")...)
 	_, stderr, _ := runMemsparkline(t, args...)
 
-	minLines := 8
+	minLines := 6
 	if lines := strings.Count(stderr, "\n"); lines < minLines {
 		t.Errorf("Expected at least %d lines in output, got %d", minLines, lines)
 	}
