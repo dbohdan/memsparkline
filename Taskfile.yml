@@ -21,11 +21,6 @@ tasks:
   build:
     desc: 'Build all components'
     deps:
-      - build:bin
-
-  build:bin:
-    desc: 'Build all binaries'
-    deps:
       - build:memsparkline
       - build:helpers
 
@@ -63,6 +58,14 @@ tasks:
     status:
       - '{{range $i, $path := .TEST_HELPERS | trim | splitLines}}{{if $i}} && {{end}}test -f {{$path | shellQuote}}/{{$path | base | shellQuote}}{{exeExt}}{{end}}'
 
+  check:
+    desc: 'Build, format, lint, and test everything'
+    deps:
+      - build
+      - format
+      - lint
+      - test
+
   clean:
     desc: 'Clean up binaries'
     cmds:
@@ -72,16 +75,26 @@ tasks:
           var: TEST_HELPERS
           as: HELPER
 
+  format:
+    desc: 'Format source code'
+    cmds:
+      - golangci-lint fmt
+
+  lint:
+    desc: 'Run linters'
+    cmds:
+      - golangci-lint run
+
   release:
     desc: 'Prepare a release'
     deps:
-      - build:bin
+      - build
     cmds:
       - VERSION=$(./memsparkline{{exeExt}} --version) go run script/release.go
 
   test:
     desc: 'Run tests'
     deps:
-      - build:bin
+      - build
     cmds:
       - go test
